@@ -17,6 +17,7 @@
     "sodium-native": "^3.3.0"
   },
   "devDependencies": {
+    "protocol-buffers": "^4.2.0",
     "tap-spec": "^5.0.0",
     "tape": "^5.3.1",
     "tape-plus": "^1.0.0"

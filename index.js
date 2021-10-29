@@ -1,4 +1,5 @@
 const Hyperswarm = require('hyperswarm')
+const { HdpMessage } = require('./lib/messages')
 
 module.exports = function (options) {
   return new Hdp(options)
@@ -10,9 +11,9 @@ class Hdp {
     this.hyperswarm.on('connection', (conn, info) => {
       console.log('got connection')
       conn.on('data', (data) => {
-        console.log('got data', data)
+        console.log('got data', HdpMessage.decode(data))
       })
-      conn.write('heelo')
+      conn.write(HdpMessage.encode({ readDirRequest: { path: '/' } }))
     })
   }
 

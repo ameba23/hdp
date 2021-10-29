@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+message HdpMessage {
+  /* optional int64 timestamp = 1; */
+  oneof msg {
+    ReadDirRequest readDirRequest = 1;
+    ReadDirResponse readDirResponse = 2;
+  }
+}
+
+message ReadDirRequest {
+  optional string path = 1;
+}
+
+message ReadDirResponse {
+  repeated string file = 1;
+}
