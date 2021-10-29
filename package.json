@@ -1,0 +1,24 @@
+{
+  "name": "hdp-simple",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape 'test/**/*.test.js' | tap-spec",
+    "protobuf": "protocol-buffers lib/schema.proto -o lib/messages.js"
+  },
+  "keywords": [],
+  "author": "peg",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "debug": "^4.3.2",
+    "hyperswarm": "^3.0.0",
+    "protocol-buffers-encodings": "^1.1.1",
+    "sodium-native": "^3.3.0"
+  },
+  "devDependencies": {
+    "tap-spec": "^5.0.0",
+    "tape": "^5.3.1",
+    "tape-plus": "^1.0.0"
+  }
+}
