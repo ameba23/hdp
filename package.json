@@ -12,6 +12,7 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "debug": "^4.3.2",
+    "fuse-native": "^2.2.6",
     "hyperswarm": "^3.0.0",
     "protocol-buffers-encodings": "^1.1.1",
     "sodium-native": "^3.3.0"
