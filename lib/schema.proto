@@ -5,13 +5,78 @@ message HdpMessage {
   oneof msg {
     ReadDirRequest readDirRequest = 1;
     ReadDirResponse readDirResponse = 2;
+    StatRequest statRequest = 3;
+    StatResponse statResponse = 4;
+    OpenRequest openRequest = 5;
+    OpenResponse openResponse = 6;
+    ReadRequest readRequest = 7;
+    ReadResponse readResponse = 8;
+    CloseRequest closeRequest = 9;
+    CloseResponse closeResponse = 10;
   }
 }
 
+message StatRequest {
+  required string path = 1;
+}
+
+message StatResponse {
+  oneof response {
+    uint32 err = 1;
+    Stat stat = 2;
+  }
+}
+
+message Stat {
+  required uint32 size = 1;
+  optional uint64 atime = 2;
+  optional uint64 mtime = 3;
+  optional uint64 ctime = 4;
+}
+
 message ReadDirRequest {
-  optional string path = 1;
+  required string path = 1;
+}
+
+message OpenRequest {
+  required string path = 1;
+}
+
+message OpenResponse {
+  oneof response {
+    uint32 err = 1;
+    uint32 fd = 2;
+  }
+}
+
+message ReadRequest {
+  required uint32 fd = 1;
+  required uint32 len = 2;
+  required uint32 pos = 3;
+}
+
+message ReadResponse {
+  oneof response {
+    uint32 err = 1;
+    bytes data = 2;
+  }
 }
 
 message ReadDirResponse {
+  oneof response {
+    uint32 err = 1;
+    Dir dir = 2;
+  }
+}
+
+message Dir {
   repeated string file = 1;
+}
+
+message CloseRequest {
+  required uint32 fd = 1;
+}
+
+message CloseResponse {
+  optional uint32 err = 1;
 }
