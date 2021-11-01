@@ -21,14 +21,15 @@ message StatRequest {
 }
 
 message StatResponse {
+  required string path = 1;
   oneof response {
-    uint32 err = 1;
-    Stat stat = 2;
+    uint32 err = 2;
+    Stat stat = 3;
   }
 }
 
 message Stat {
-  required uint32 size = 1;
+  optional uint32 size = 1;
   optional uint64 atime = 2;
   optional uint64 mtime = 3;
   optional uint64 ctime = 4;
@@ -46,9 +47,10 @@ message OpenRequest {
 }
 
 message OpenResponse {
+  required string path = 1;
   oneof response {
-    uint32 err = 1;
-    uint32 fd = 2;
+    uint32 err = 2;
+    uint32 fd = 3;
   }
 }
 
@@ -59,16 +61,20 @@ message ReadRequest {
 }
 
 message ReadResponse {
+  required uint32 fd = 1;
+  required uint32 len = 2;
+  required uint32 pos = 3;
   oneof response {
-    uint32 err = 1;
-    bytes data = 2;
+    uint32 err = 4;
+    bytes data = 5;
   }
 }
 
 message ReadDirResponse {
+  optional string path = 1;
   oneof response {
-    uint32 err = 1;
-    Dir dir = 2;
+    uint32 err = 2;
+    Dir dir = 3;
   }
 }
 
@@ -81,5 +87,6 @@ message CloseRequest {
 }
 
 message CloseResponse {
-  optional uint32 err = 1;
+  required uint32 fd = 1;
+  optional uint32 err = 2;
 }
