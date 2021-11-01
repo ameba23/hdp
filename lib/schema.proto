@@ -32,6 +32,9 @@ message Stat {
   optional uint64 atime = 2;
   optional uint64 mtime = 3;
   optional uint64 ctime = 4;
+  optional uint32 mode = 5;
+  optional uint32 dev = 6;
+  optional uint64 ino = 7;
 }
 
 message ReadDirRequest {

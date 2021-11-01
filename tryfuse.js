@@ -6,6 +6,24 @@ const log = console.log
 
 const basepath = './test'
 
+const uid = process.getuid()
+const gid = process.getgid()
+
+function createStatObject(size, atime, mtime, ctime) {
+ // new Date(atime)
+  // dev is id of device - should this be 0 or the current device
+  return {
+    dev: 0,
+    nlink: 1, // number of hard links
+    mtime,
+    atime,
+    ctime,
+    size,
+    uid,
+    gid
+  }
+}
+
 const handlers = {
   getattr (p, cb) {
     log('getattr(%s)', p)
