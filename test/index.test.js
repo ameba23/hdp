@@ -13,7 +13,7 @@ describe('basic', (context) => {
     hdp1 = Hdp()
     hdp2 = Hdp()
 
-    await hdp1.connect(Buffer.alloc(32).fill('hello world'))
-    await hdp2.connect(Buffer.alloc(32).fill('hello world'))
+    await hdp1.connect('hello world')
+    await hdp2.connect('hello world')
   })
 })
