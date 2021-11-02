@@ -2,79 +2,15 @@ const Hyperswarm = require('hyperswarm')
 const { HdpMessage } = require('./lib/messages')
 const { printKey } = require('./lib/util')
 const EventEmitter = require('events')
-const sodium = require('sodium-native')
 const log = require('debug')('hdp')
 const fs = require('fs')
 const { join } = require('path')
+const { nameToTopic } = require('./lib/crypto')
+const Peer = require('./lib/peer')
+
 
 module.exports = function (options) {
   return new Hdp(options)
-}
-
-class Peer extends EventEmitter {
-  constructor (connection, handlers) {
-    super()
-    this.files = {}
-    const self = this
-    this.connection = connection
-    connection.on('data', (data) => {
-      console.log('got data', HdpMessage.decode(data))
-      const message = HdpMessage.decode(data)
-      switch (Object.keys(message)[0]) {
-        case 'readDirRequest':
-          handlers.onReadDir(message.readDirRequest.path)
-          break
-        case 'readDirResponse':
-          const files = message.readDirResponse.dir.file
-          const path = message.readDirResponse.path
-          console.log('readDirResopnse:', path, files)
-          self.emit('readDirResponse', path, files)
-          break
-        case 'statResponse':
-          console.log('statResopnse:', message.statResponse)
-          self.emit('statResponse', message.statResponse)
-          break
-      }
-    })
-    // this.connection.write(HdpMessage.encode({ readDirRequest: { '/' } }))
-  }
-
-  async readDir (path) {
-    const self = this
-    // TODO check our model - if we have the path, give it
-    this.connection.write(HdpMessage.encode({ readDirRequest: { path } }))
-    return new Promise((resolve, reject) => {
-      self.once('readDirResponse', (path, files) => {
-        // TODO check path is correct
-        resolve(files)
-      })
-    })
-  }
-
-  async stat (path) {
-    // TODO check our model - if we have the path, give it
-    this.connection.write(HdpMessage.encode({ statRequest: { path } }))
-    return new Promise((resolve, reject) => {
-      self.once('statResponse', (statMessage) => {
-        // TODO check path is correct
-        resolve(files)
-      })
-    })
-  }
-
-  onReadDirResponse (path, files) {
-    console.log(path, files)
-  }
-
-  onStatResponse (path, stat) {
-
-  }
-
-  respondReadDir (err, files, path) {
-    const readDirResponse = err ? { err } : { dir: { file: files } }
-    readDirResponse.path = path
-    this.connection.write(HdpMessage.encode( { readDirResponse } ))
-  }
 }
 
 class Hdp extends EventEmitter {
@@ -87,11 +23,7 @@ class Hdp extends EventEmitter {
     this.hyperswarm.on('connection', (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
       log(`Pk: ${printKey(conn.publicKey)} Remote: ${printKey(conn.remotePublicKey)}`)
-      this.peers[remotePk] = new Peer(conn, {
-        onReadDir(path) {
-          self.onReadDir(path, remotePk)
-        }
-      })
+      this.peers[remotePk] = new Peer(conn, self)
       this.peerNames[printKey(conn.remotePublicKey)] = this.peers[remotePk]
       this.emit('connection')
     })
@@ -100,17 +32,6 @@ class Hdp extends EventEmitter {
   }
 
   async connect (name) {
-    function genericHash (msg, key) {
-      const hash = sodium.sodium_malloc(sodium.crypto_generichash_BYTES)
-      sodium.crypto_generichash(hash, msg, key)
-      return hash
-    }
-    const SWARM_TOPIC_CONTEXT = genericHash(Buffer.from('hdp'), Buffer.alloc(32))
-    function nameToTopic (name) {
-      name = Buffer.from(name)
-      const topic = genericHash(name, SWARM_TOPIC_CONTEXT)
-      return topic
-    }
     log('Joining ', name)
     const discovery = this.hyperswarm.join(nameToTopic(name), { server: true, client: true })
     // await discovery.flushed() // Waits for the topic to be fully announced on the DHT
@@ -122,10 +43,16 @@ class Hdp extends EventEmitter {
     // Read local dir, respond to peer
     const self = this
     fs.readdir(join(this.basePath, path), (err, files) => {
-      console.log(err, files)
       self.peers[remotePk].respondReadDir(err, files, path)
     })
-    // self.peers[remotePk].respondReadDir(null, ['readme.txt'])
+  }
+
+  onStat(path, remotePk) {
+    // Read local dir, respond to peer
+    const self = this
+    fs.stat(join(this.basePath, path), (err, stat) => {
+      self.peers[remotePk].respondStat(err, stat, path)
+    })
   }
 
   async readDir (pathString) {
@@ -144,6 +71,14 @@ class Hdp extends EventEmitter {
   }
 
   async stat (pathString) {
-
+    const path = pathString.split('/').filter(p => p !== '')
+    if (!path.length) {
+      // TODO invent some stat object here
+    }
+    if (Object.keys(this.peerNames).includes(path[0])) {
+      return this.peerNames[path[0]].stat(path.slice(1).join('/'))
+    }
+    console.log(path)
+    throw new Error('no file')
   }
 }
