@@ -28,21 +28,33 @@ class Hdp extends EventEmitter {
       this.emit('connection')
     })
     this.shares = options.shares || []
-    this.basePath = this.shares[0] // temp
   }
 
-  async connect (name) {
-    log('Joining ', name)
+  async join (name) {
+    log(`Joining ${name}`)
     const discovery = this.hyperswarm.join(nameToTopic(name), { server: true, client: true })
     // await discovery.flushed() // Waits for the topic to be fully announced on the DHT
 
     // await this.swarm.flush() // Waits for the swarm to connect to pending peers.
   }
 
+  async leave (name) {
+    log(`Leaving ${name}`)
+    this.hyperswarm.leave(nameToTopic(name))
+  }
+
   onReadDir(path, remotePk) {
     // Read local dir, respond to peer
     const self = this
-    fs.readdir(join(this.basePath, path), (err, files) => {
+    if (!this.shares.length) {
+      if (path === '/' || path === '') {
+        self.peers[remotePk].respondReadDir(err, [], path)
+      } else {
+        // ENOENT
+        self.peers[remotePk].respondReadDir({ errno: -2 }, undefined, path)
+      }
+    }
+    fs.readdir(join(this.shares[0], path), (err, files) => {
       self.peers[remotePk].respondReadDir(err, files, path)
     })
   }
@@ -50,7 +62,7 @@ class Hdp extends EventEmitter {
   onStat(path, remotePk) {
     // Read local dir, respond to peer
     const self = this
-    fs.stat(join(this.basePath, path), (err, stat) => {
+    fs.stat(join(this.shares[0], path), (err, stat) => {
       self.peers[remotePk].respondStat(err, stat, path)
     })
   }
@@ -67,7 +79,7 @@ class Hdp extends EventEmitter {
     if (Object.keys(this.peerNames).includes(path[0])) {
       return this.peerNames[path[0]].readDir(path.slice(1).join('/'))
     }
-    throw new Error('no file')
+    throw createError(-2)
   }
 
   async stat (pathString) {
@@ -79,6 +91,6 @@ class Hdp extends EventEmitter {
       return this.peerNames[path[0]].stat(path.slice(1).join('/'))
     }
     console.log(path)
-    throw new Error('no file')
+    throw createError(-2)
   }
 }
