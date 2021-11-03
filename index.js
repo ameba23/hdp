@@ -8,6 +8,7 @@ const { join } = require('path')
 const { nameToTopic } = require('./lib/crypto')
 const Peer = require('./lib/peer')
 
+const ENOENT = -2 // TODO
 
 module.exports = function (options) {
   return new Hdp(options)
@@ -50,8 +51,7 @@ class Hdp extends EventEmitter {
       if (path === '/' || path === '') {
         self.peers[remotePk].respondReadDir(err, [], path)
       } else {
-        // ENOENT
-        self.peers[remotePk].respondReadDir({ errno: -2 }, undefined, path)
+        self.peers[remotePk].respondReadDir({ errno: ENOENT }, undefined, path)
       }
     }
     fs.readdir(join(this.shares[0], path), (err, files) => {
@@ -67,6 +67,18 @@ class Hdp extends EventEmitter {
     })
   }
 
+  onOpen (path, remotePk) {
+// fs.open(path)
+  }
+
+  onRead (fd, len, pos, remotePk) {
+// fs.read
+  }
+
+  onClose (fd, remotePk) {
+//fs.close
+  }
+
   async readDir (pathString) {
     const path = pathString.split('/').filter(p => p !== '')
     if (!path.length) {
@@ -79,7 +91,7 @@ class Hdp extends EventEmitter {
     if (Object.keys(this.peerNames).includes(path[0])) {
       return this.peerNames[path[0]].readDir(path.slice(1).join('/'))
     }
-    throw createError(-2)
+    throw createError(ENOENT)
   }
 
   async stat (pathString) {
@@ -90,7 +102,18 @@ class Hdp extends EventEmitter {
     if (Object.keys(this.peerNames).includes(path[0])) {
       return this.peerNames[path[0]].stat(path.slice(1).join('/'))
     }
-    console.log(path)
-    throw createError(-2)
+    throw createError(ENOENT)
+  }
+
+  async open (pathString) {
+
+  }
+
+  async read (fd, len, pos) {
+
+  }
+
+  async close (fd) {
+
   }
 }
