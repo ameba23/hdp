@@ -18,7 +18,12 @@ describe('basic', (context) => {
 
 
     await hdp1.join(swarmName)
+
+    await new Promise((resolve, reject) => {
+      setTimeout(resolve, 1000)
+    })
     await hdp2.join(swarmName)
+    // console.log(hdp1.hyperswarm)
     await new Promise((resolve, reject) => {
       hdp1.once('connection', resolve)
     })

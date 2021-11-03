@@ -1,6 +1,6 @@
 const Hyperswarm = require('hyperswarm')
 const { HdpMessage } = require('./lib/messages')
-const { printKey } = require('./lib/util')
+const { printKey, createError } = require('./lib/util')
 const EventEmitter = require('events')
 const log = require('debug')('hdp')
 const fs = require('fs')
