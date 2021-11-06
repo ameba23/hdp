@@ -39,13 +39,21 @@ describe('basic', (context) => {
     })
 
     const stat = await hdp1.stat(`${files[0]}/${rfiles[0]}`)
-    console.log('output', stat)
     assert.true(typeof stat.size === 'number', 'Stat object has a size property')
 
     hdp1.stat(`${files[0]}/not-a-file`).catch((err) => {
-      console.log('err', err)
-      assert.true(err.errno === -2)
+      assert.true(err.errno === -2, 'Correct err on stating a file which does not exist')
     })
+
+    const fd = await hdp1.open(`${files[0]}/${rfiles[0]}`)
+    assert.true(typeof fd === 'number', 'File descriptor returned')
+    assert.true(fd > 0, 'File descriptor > 0')
+
+    const { data, bytesRead } = await hdp1.read(fd, 10, 0)
+    console.log(data, bytesRead)
+    // assert.equal(data, '', 'File read correctly')
+
+    await hdp1.close(fd)
 
     await hdp1.hyperswarm.destroy()
     await hdp2.hyperswarm.destroy()

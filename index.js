@@ -20,6 +20,8 @@ class Hdp extends EventEmitter {
     const self = this
     this.hyperswarm = new Hyperswarm()
     this.peers = {}
+    this.fileDescriptors = {}
+    this.remoteFileDescriptors = {}
     this.peerNames = {}
     this.hyperswarm.on('connection', (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
@@ -44,19 +46,19 @@ class Hdp extends EventEmitter {
     this.hyperswarm.leave(nameToTopic(name))
   }
 
-  onReadDir(path, remotePk) {
+  async onReadDir(path, remotePk) {
     // Read local dir, respond to peer
     const self = this
     if (!this.shares.length) {
       if (path === '/' || path === '') {
-        self.peers[remotePk].respondReadDir(err, [], path)
+        // self.peers[remotePk].respondReadDir(err, [], path)
+        return []
       } else {
-        self.peers[remotePk].respondReadDir({ errno: ENOENT }, undefined, path)
+        throw createError(ENOENT)
       }
     }
-    fs.readdir(join(this.shares[0], path), (err, files) => {
-      self.peers[remotePk].respondReadDir(err, files, path)
-    })
+    const files = await fs.promises.readdir(join(this.shares[0], path))
+    return files
   }
 
   onStat(path, remotePk) {
@@ -67,16 +69,22 @@ class Hdp extends EventEmitter {
     })
   }
 
-  onOpen (path, remotePk) {
-// fs.open(path)
+  async onOpen (path, remotePk) {
+    const fileHandle = await fs.promises.open(join(this.shares[0], path))
+    this.fileDescriptors[fileHandle.fd] = fileHandle
+    return fileHandle.fd
   }
 
-  onRead (fd, len, pos, remotePk) {
-// fs.read
+  async onRead (fd, len, pos, remotePk) {
+    if (!this.fileDescriptors[fd]) return // TODO
+    const data = Buffer.alloc(len)
+    const { bytesRead } = await this.fileDescriptors[fd].read(data, 0, len, pos)
+    return { data, bytesRead }
   }
 
   onClose (fd, remotePk) {
-//fs.close
+    if (!this.fileDescriptors[fd]) return // TODO
+    return this.fileDescriptors[fd].close()
   }
 
   async readDir (pathString) {
@@ -106,14 +114,28 @@ class Hdp extends EventEmitter {
   }
 
   async open (pathString) {
-
+    const path = pathString.split('/').filter(p => p !== '')
+    if (!path.length) {
+      // TODO decide whether to allow opening directories
+    }
+    if (Object.keys(this.peerNames).includes(path[0])) {
+      const fd = await this.peerNames[path[0]].open(path.slice(1).join('/'))
+      this.remoteFileDescriptors[fd] = path[0]
+      return fd
+    }
+    throw createError(ENOENT)
   }
 
   async read (fd, len, pos) {
-
+    if (!this.remoteFileDescriptors[fd]) {
+      console.log('Bad fd')
+      return // TODO throw err
+    }
+    return this.peerNames[this.remoteFileDescriptors[fd]].read(fd, len, pos)
   }
 
   async close (fd) {
-
+    if (!this.remoteFileDescriptors[fd]) return // TODO throw err
+    return this.peerNames[this.remoteFileDescriptors[fd]].close(fd)
   }
 }
