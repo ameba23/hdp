@@ -2,6 +2,7 @@ const Hyperswarm = require('hyperswarm')
 const { HdpMessage } = require('./lib/messages')
 const { printKey, createError } = require('./lib/util')
 const EventEmitter = require('events')
+const Fuse = require('fuse-native')
 const log = require('debug')('hdp')
 const fs = require('fs')
 const { join } = require('path')
@@ -31,6 +32,7 @@ class Hdp extends EventEmitter {
       this.emit('connection')
     })
     this.shares = options.shares || []
+    this.mountDir = options.mountDir
   }
 
   async join (name) {
@@ -44,6 +46,88 @@ class Hdp extends EventEmitter {
   async leave (name) {
     log(`Leaving ${name}`)
     this.hyperswarm.leave(nameToTopic(name))
+  }
+
+  async mount () {
+    const self = this
+    this.handlers = this.handlers || this.createHandlers()
+    this.fuse = this.fuse || new Fuse(this.mountDir || './mnt', this.handlers, { autoCache: true })
+
+    await new Promise((resolve, reject) => {
+      self.fuse.mount((err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+    log('mounted...')
+
+    process.once('SIGINT', function () {
+      self.unmount()
+    })
+  }
+
+  async unmount () {
+    const self = this
+    if (!this.fuse) return
+    await new Promise((resolve, reject) => {
+      self.fuse.unmount((err) => {
+        if (err) return reject(err)
+        resolve()
+      })
+    })
+    log('Unmounted')
+    process.exit()
+  }
+
+  createHandlers () {
+    const self = this
+    return {
+      getattr (p, cb) {
+        log('getattr(%s)', p)
+        self.stat(p)
+          .then((stat) => {
+            cb(0, stat)
+          })
+          .catch((err) => {
+            cb(err.errno || Fuse.ENOENT)
+          })
+      },
+      readdir (p, cb) {
+        log('readdir', p)
+        self.readdir(p)
+          .then((files) => {
+            cb(0, files)
+          })
+        .catch((err) => {
+          cb(err.errno || Fuse.ENOENT)
+        })
+      },
+      open (path, flags, cb) {
+        log('open', path, flags)
+        // TODO throw err if opening for writing
+        self.open(path)
+          .then((fd) => { cb(0, fd) })
+          .catch((err) => { cb(err.errno) })
+      },
+      read (path, fd, buf, len, pos, cb) {
+        log('read', path, fd, len, pos, buf.length)
+        self.read(fd, buf, len, pos)
+          .then(({ data, bytesRead }) => {
+            cb(bytesRead)
+          })
+          .catch((err) => { cb(err.errno) })
+      },
+      release (path, fd, cb) {
+        log('release', path, fd)
+        self.close((fd))
+        .then(() => {
+          cb(0)
+        })
+        .catch((err) => {
+          cb(err.errno)
+        })
+      }
+    }
   }
 
   async onReadDir(path, remotePk) {
@@ -126,12 +210,14 @@ class Hdp extends EventEmitter {
     throw createError(ENOENT)
   }
 
-  async read (fd, len, pos) {
+  async read (fd, buf, len, pos) {
     if (!this.remoteFileDescriptors[fd]) {
       console.log('Bad fd')
       return // TODO throw err
     }
-    return this.peerNames[this.remoteFileDescriptors[fd]].read(fd, len, pos)
+    const readResponse = await this.peerNames[this.remoteFileDescriptors[fd]].read(fd, len, pos)
+    if (buf) readResponse.data.copy(buf)
+    return readResponse
   }
 
   async close (fd) {

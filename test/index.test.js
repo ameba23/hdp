@@ -49,7 +49,7 @@ describe('basic', (context) => {
     assert.true(typeof fd === 'number', 'File descriptor returned')
     assert.true(fd > 0, 'File descriptor > 0')
 
-    const { data, bytesRead } = await hdp1.read(fd, 10, 0)
+    const { data, bytesRead } = await hdp1.read(fd, undefined, 10, 0)
     console.log(data, bytesRead)
     // assert.equal(data, '', 'File read correctly')
 

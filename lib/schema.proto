@@ -2,6 +2,18 @@ syntax = "proto2";
 
 message HdpMessage {
   /* optional int64 timestamp = 1; */
+
+  /* enum Type { */
+  /*   REQUEST = 0; */
+  /*   RESPONSE = 1; */
+  /* } */
+  /* optional Type type = ; */
+
+  /* oneof msg { */
+  /*   Request request = 1; */
+  /*   Response response = 2; */
+  /* } */
+
   oneof msg {
     ReadDirRequest readDirRequest = 1;
     ReadDirResponse readDirResponse = 2;
