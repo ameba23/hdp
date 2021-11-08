@@ -30,6 +30,7 @@ class Hdp extends EventEmitter {
     this.hyperswarm.on('connection', (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
       log(`Pk: ${printKey(conn.publicKey)} Remote: ${printKey(conn.remotePublicKey)}`)
+      console.log(`Pk: ${printKey(conn.publicKey)} Remote: ${printKey(conn.remotePublicKey)}`)
       self.peers[remotePk] = new Peer(conn, this.rpc)
       self.hdpfs.peerNames[printKey(conn.remotePublicKey)] = self.peers[remotePk]
       self.emit('connection')
