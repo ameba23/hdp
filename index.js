@@ -50,7 +50,7 @@ class Hdp extends EventEmitter {
     await discovery.flushed() // Waits for the topic to be fully announced on the DHT
     console.log('Flushed')
     await this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
-    console.log('finish')
+    console.log('finished connecting to pending peers')
   }
 
   async leave (name) {
