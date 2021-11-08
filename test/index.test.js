@@ -27,14 +27,14 @@ describe('basic', (context) => {
     await new Promise((resolve, reject) => {
       hdp1.once('connection', resolve)
     })
-    const files = await hdp1.readDir('/')
+    const files = await hdp1.readdir('/')
     // console.log(files)
     assert.equals(files.length, 1, 'One directory')
-    const rfiles = await hdp1.readDir(files[0])
+    const rfiles = await hdp1.readdir(files[0])
     // console.log('rfiles', rfiles)
     assert.equals(rfiles.length, 1, 'One file')
 
-    hdp1.readDir('/not-a-peer').catch((err) => {
+    hdp1.readdir('/not-a-peer').catch((err) => {
       assert.true(err, 'Should give error on reading non-existant directory')
     })
 

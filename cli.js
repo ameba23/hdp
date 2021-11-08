@@ -2,4 +2,4 @@
 const Hdp = require('.')
 
 const hdp = Hdp()
-hdp.mount()
+hdp.fuse.mount()
