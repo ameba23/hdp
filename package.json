@@ -1,13 +1,19 @@
 {
   "name": "hdp",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "Filesharing with fuse",
   "main": "index.js",
   "scripts": {
     "test": "tape 'test/**/*.test.js' | tap-spec",
     "protobuf": "protocol-buffers lib/schema.proto -o lib/messages.js"
   },
-  "keywords": [],
+  "bin": {
+    "hdp": "cli.js"
+  },
+  "keywords": [
+    "peer-to-peer",
+    "filesharing"
+  ],
   "author": "peg",
   "license": "AGPL-3.0-only",
   "dependencies": {
