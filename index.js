@@ -23,6 +23,7 @@ class Hdp extends EventEmitter {
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     console.log('Shares', this.shares)
     this.mountDir = options.mountDir
+    this.options = options
     this.ctime = Date.now() // TODO
     this.fuse = new Fuse(this.hdpfs)
     this.rpc = new Rpc(this.shares)
@@ -39,10 +40,17 @@ class Hdp extends EventEmitter {
 
   async join (name) {
     log(`Joining ${name}`)
-    const discovery = this.hyperswarm.join(nameToTopic(name), { server: true, client: true })
-    // await discovery.flushed() // Waits for the topic to be fully announced on the DHT
+    const config = this.options.server
+      ? { server: true, client: false }
+      : this.options.client
+        ? { server: false, client: true }
+        : { server: true, client: true }
 
-    // await this.swarm.flush() // Waits for the swarm to connect to pending peers.
+    const discovery = this.hyperswarm.join(nameToTopic(name), config)
+    await discovery.flushed() // Waits for the topic to be fully announced on the DHT
+    console.log('Flushed')
+    await this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
+    console.log('finish')
   }
 
   async leave (name) {
