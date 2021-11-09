@@ -3,7 +3,6 @@ const { describe } = require('tape-plus')
 const { join, resolve } = require('path')
 
 describe('basic', (context) => {
-
   context.beforeEach(assert => {
   })
 
@@ -11,52 +10,58 @@ describe('basic', (context) => {
   })
 
   context('basic', async (assert) => {
-    hdp1 = Hdp({ shares: [resolvePath('./alice-files')] })
-    hdp2 = Hdp({ shares: [resolvePath('./bob-files')] })
+    const hdp1 = Hdp({ shares: [resolvePath('./alice-files')] })
+    const hdp2 = Hdp({ shares: [resolvePath('./bob-files')] })
 
     const swarmName = 'some place'
 
+    hdp1.join(swarmName)
+    hdp2.join(swarmName)
 
-    await hdp1.join(swarmName)
-
-    await new Promise((resolve, reject) => {
-      setTimeout(resolve, 1000)
-    })
-    await hdp2.join(swarmName)
-    // console.log(hdp1.hyperswarm)
     await new Promise((resolve, reject) => {
       hdp1.once('connection', resolve)
     })
-    const files = await hdp1.readdir('/')
-    // console.log(files)
-    assert.equals(files.length, 1, 'One directory')
-    const rfiles = await hdp1.readdir(files[0])
-    // console.log('rfiles', rfiles)
-    assert.equals(rfiles.length, 1, 'One file')
 
-    hdp1.readdir('/not-a-peer').catch((err) => {
+    const dirList = await hdp1.fs.readdir('/')
+    assert.equals(dirList.length, 1, 'One directory')
+
+    const rsubdir = await hdp1.fs.readdir(dirList[0])
+    // console.log('rfiles', rfiles)
+    assert.equals(rsubdir.length, 1, 'One share directory')
+
+    const subpath = `${dirList[0]}/${rsubdir[0]}`
+    const rfiles = await hdp1.fs.readdir(subpath)
+    // console.log('rfiles', rfiles)
+    assert.equals(rfiles.length, 1, 'One share directory')
+
+    hdp1.fs.readdir('/not-a-peer').catch((err) => {
       assert.true(err, 'Should give error on reading non-existant directory')
     })
 
-    const stat = await hdp1.stat(`${files[0]}/${rfiles[0]}`)
+    const filePath = `${subpath}/${rfiles[0]}`
+    const stat = await hdp1.fs.stat(filePath)
     assert.true(typeof stat.size === 'number', 'Stat object has a size property')
 
-    hdp1.stat(`${files[0]}/not-a-file`).catch((err) => {
+    hdp1.fs.stat(`${subpath}/not-a-file`).catch((err) => {
       assert.true(err.errno === -2, 'Correct err on stating a file which does not exist')
     })
 
-    const fd = await hdp1.open(`${files[0]}/${rfiles[0]}`)
+    const fd = await hdp1.fs.open(filePath)
     assert.true(typeof fd === 'number', 'File descriptor returned')
     assert.true(fd > 0, 'File descriptor > 0')
 
-    const { data, bytesRead } = await hdp1.read(fd, undefined, 10, 0)
-    console.log(data, bytesRead)
-    // assert.equal(data, '', 'File read correctly')
+    const { data, bytesRead } = await hdp1.fs.read(fd, undefined, 10, 0)
+    assert.true(Buffer.isBuffer(data), 'File read correctly')
+    assert.true(bytesRead === 10, 'Correct number of bytes read')
 
-    await hdp1.close(fd)
+    await hdp1.fs.close(fd)
 
-    await hdp1.hyperswarm.destroy()
-    await hdp2.hyperswarm.destroy()
+    // await hdp1.leave(swarmName)
+    // await hdp2.leave(swarmName)
+    await Promise.all([
+      hdp1.hyperswarm.destroy().catch(console.log),
+      hdp2.hyperswarm.destroy().catch(console.log)
+    ])
   })
 })
 

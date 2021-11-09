@@ -16,24 +16,24 @@ class Hdp extends EventEmitter {
   constructor (options = {}) {
     super()
     const self = this
-    this.hyperswarm = new Hyperswarm()
+    this.hyperswarm = new Hyperswarm({ keyPair: options.keyPair })
+    // TODO store this.hyperswarm.keyPair
     this.peers = {}
-    this.hdpfs = new Hdpfs()
+    this.fs = new Hdpfs()
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
-    console.log('Shares', this.shares)
+    log('Shares', this.shares)
     this.mountDir = options.mountDir
     this.options = options
-    this.ctime = Date.now() // TODO
-    this.fuse = new Fuse(this.hdpfs)
+    this.fuse = new Fuse(this.fs)
     this.rpc = new Rpc(this.shares)
 
     this.hyperswarm.on('connection', (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
-      log(`Pk: ${printKey(conn.publicKey)} Remote: ${printKey(conn.remotePublicKey)}`)
-      console.log(`Pk: ${printKey(conn.publicKey)} Remote: ${printKey(conn.remotePublicKey)}`)
+      log(`Peer connected. Our pk: ${printKey(conn.publicKey)} Remote pk: ${printKey(conn.remotePublicKey)}`)
       self.peers[remotePk] = new Peer(conn, this.rpc)
-      self.hdpfs.peerNames[printKey(conn.remotePublicKey)] = self.peers[remotePk]
+      self.fs.peerNames[printKey(conn.remotePublicKey)] = self.peers[remotePk]
+      console.log('true')
       self.emit('connection')
     })
   }
@@ -47,14 +47,16 @@ class Hdp extends EventEmitter {
         : { server: true, client: true }
 
     const discovery = this.hyperswarm.join(nameToTopic(name), config)
-    await discovery.flushed() // Waits for the topic to be fully announced on the DHT
-    console.log('Flushed')
-    await this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
-    console.log('finished connecting to pending peers')
+    await Promise.all([
+      discovery.flushed(), // Waits for the topic to be fully announced on the DHT
+      this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
+    ]).catch((err) => { console.log(err) })
+    log('Finished connecting to pending peers')
   }
 
   async leave (name) {
     log(`Leaving ${name}`)
-    this.hyperswarm.leave(nameToTopic(name))
+    await this.hyperswarm.leave(nameToTopic(name))
+    log(`Left ${name}`)
   }
 }
