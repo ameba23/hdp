@@ -41,11 +41,13 @@ describe('basic', (context) => {
     const filePath = `${subpath}/${rfiles[0]}`
     const stat = await hdp1.fs.stat(filePath)
     assert.true(typeof stat.size === 'number', 'Stat object has a size property')
+    assert.true(stat.size > 0, 'Size is > 0')
 
     hdp1.fs.stat(`${subpath}/not-a-file`).catch((err) => {
       assert.true(err.errno === -2, 'Correct err on stating a file which does not exist')
     })
 
+    console.log(filePath)
     const fd = await hdp1.fs.open(filePath)
     assert.true(typeof fd === 'number', 'File descriptor returned')
     assert.true(fd > 0, 'File descriptor > 0')

@@ -32,9 +32,12 @@ class Hdp extends EventEmitter {
       const remotePk = conn.remotePublicKey.toString('hex')
       log(`Peer connected. Our pk: ${printKey(conn.publicKey)} Remote pk: ${printKey(conn.remotePublicKey)}`)
       self.peers[remotePk] = new Peer(conn, this.rpc)
-      self.fs.peerNames[printKey(conn.remotePublicKey)] = self.peers[remotePk]
-      console.log('true')
+      self.fs.peerNames[self.peers[remotePk].getName()] = self.peers[remotePk]
       self.emit('connection')
+      conn.once('close', () => {
+        log(`Peer ${printKey(conn.publicKey)} disconnected`)
+        delete self.peers[remotePk]
+      })
     })
   }
 
@@ -50,7 +53,7 @@ class Hdp extends EventEmitter {
     await Promise.all([
       discovery.flushed(), // Waits for the topic to be fully announced on the DHT
       this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
-    ]).catch((err) => { console.log(err) })
+    ]).catch(() => { log('Connection closed before flush') })
     log('Finished connecting to pending peers')
   }
 
@@ -60,3 +63,13 @@ class Hdp extends EventEmitter {
     log(`Left ${name}`)
   }
 }
+
+function logEvents (emitter, name) {
+  const emit = emitter.emit
+  name = name ? `(${name}) ` : ''
+  emitter.emit = (...args) => {
+    console.log(`\x1b[33m    ----${args[0]}\x1b[0m`)
+    emit.apply(emitter, args)
+  }
+}
+
