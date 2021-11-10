@@ -16,8 +16,8 @@ class Hdp extends EventEmitter {
   constructor (options = {}) {
     super()
     const self = this
-    this.hyperswarm = new Hyperswarm({ keyPair: options.keyPair })
-    // TODO store this.hyperswarm.keyPair
+
+    this.hyperswarm = new Hyperswarm({ seed: options.seed })
     this.peers = {}
     this.fs = new Hdpfs()
     this.shares = options.shares
@@ -28,11 +28,12 @@ class Hdp extends EventEmitter {
     this.fuse = new Fuse(this.fs)
     this.rpc = new Rpc(this.shares)
 
-    this.hyperswarm.on('connection', (conn, info) => {
+    this.hyperswarm.on('connection', async (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
-      log(`Peer connected. Our pk: ${printKey(conn.publicKey)} Remote pk: ${printKey(conn.remotePublicKey)}`)
       self.peers[remotePk] = new Peer(conn, this.rpc)
-      self.fs.peerNames[self.peers[remotePk].getName()] = self.peers[remotePk]
+      const name = await self.peers[remotePk].getName()
+      log(`Peer connected. ${name} Our pk: ${printKey(conn.publicKey)} Remote pk: ${printKey(conn.remotePublicKey)}`)
+      self.fs.peerNames[name] = self.peers[remotePk]
       self.emit('connection')
       conn.once('close', () => {
         log(`Peer ${printKey(conn.publicKey)} disconnected`)
@@ -64,12 +65,11 @@ class Hdp extends EventEmitter {
   }
 }
 
-function logEvents (emitter, name) {
-  const emit = emitter.emit
-  name = name ? `(${name}) ` : ''
-  emitter.emit = (...args) => {
-    console.log(`\x1b[33m    ----${args[0]}\x1b[0m`)
-    emit.apply(emitter, args)
-  }
-}
-
+// function logEvents (emitter, name) {
+//   const emit = emitter.emit
+//   name = name ? `(${name}) ` : ''
+//   emitter.emit = (...args) => {
+//     console.log(`\x1b[33m    ----${args[0]}\x1b[0m`)
+//     emit.apply(emitter, args)
+//   }
+// }
