@@ -28,6 +28,8 @@ class Hdp extends EventEmitter {
     this.fuse = new Fuse(this.fs)
     this.rpc = new Rpc(this.shares)
 
+    process.once('SIGINT', () => { self.stop() })
+
     this.hyperswarm.on('connection', async (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
       self.peers[remotePk] = new Peer(conn, this.rpc)
@@ -35,6 +37,8 @@ class Hdp extends EventEmitter {
       log(`Peer connected. ${name} Our pk: ${printKey(conn.publicKey)} Remote pk: ${printKey(conn.remotePublicKey)}`)
       self.fs.peerNames[name] = self.peers[remotePk]
       self.emit('connection')
+
+      // TODO dont destroy - have a connection timeout
       conn.once('close', () => {
         log(`Peer ${printKey(conn.publicKey)} disconnected`)
         delete self.peers[remotePk]
@@ -54,7 +58,7 @@ class Hdp extends EventEmitter {
     await Promise.all([
       discovery.flushed(), // Waits for the topic to be fully announced on the DHT
       this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
-    ]).catch(() => { log('Connection closed before flush') })
+    ]).catch((err) => { log(`Connection closed before flush ${err}`) })
     log('Finished connecting to pending peers')
   }
 
@@ -62,6 +66,17 @@ class Hdp extends EventEmitter {
     log(`Leaving ${name}`)
     await this.hyperswarm.leave(nameToTopic(name))
     log(`Left ${name}`)
+  }
+
+  async stop () {
+    await Promise.all([
+      this.rpc.closeAll(), // Close all open fds
+      this.fuse.unmount() // Unmount if mounted
+      // TODO leave / destroy swarms
+    ]).catch((err) => {
+      console.log(err)
+    })
+    process.exit()
   }
 }
 
