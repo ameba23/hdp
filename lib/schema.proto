@@ -1,107 +1,89 @@
 syntax = "proto2";
 
 message HdpMessage {
-  /* optional int64 timestamp = 1; */
+  required uint32 id = 1;
+  oneof msg {
+    Request request = 2;
+    Response response = 3;
+  }
+}
 
-  /* enum Type { */
-  /*   REQUEST = 0; */
-  /*   RESPONSE = 1; */
-  /* } */
-  /* optional Type type = ; */
+message Request {
+  message Stat {
+    required string path = 1;
+  }
 
-  /* oneof msg { */
-  /*   Request request = 1; */
-  /*   Response response = 2; */
-  /* } */
+  message Readdir {
+    required string path = 1;
+  }
+
+  message Open {
+    required string path = 1;
+  }
+
+  message Read {
+    required uint32 fd = 1;
+    required uint32 len = 2;
+    required uint32 pos = 3;
+  }
+
+  message Close {
+    required uint32 fd = 1;
+  }
 
   oneof msg {
-    ReadDirRequest readDirRequest = 1;
-    ReadDirResponse readDirResponse = 2;
-
-    StatRequest statRequest = 3;
-    StatResponse statResponse = 4;
-
-    OpenRequest openRequest = 5;
-    OpenResponse openResponse = 6;
-
-    ReadRequest readRequest = 7;
-    ReadResponse readResponse = 8;
-
-    CloseRequest closeRequest = 9;
-    CloseResponse closeResponse = 10;
+    Readdir readdir = 1;
+    Stat stat = 2;
+    Open open = 3;
+    Read read = 4;
+    Close close = 5;
   }
 }
 
-message StatRequest {
-  required string path = 1;
-}
+message Response {
+  message Stat {
+    optional uint64 size = 1;
+    optional uint64 atime = 2;
+    optional uint64 mtime = 3;
+    optional uint64 ctime = 4;
+    optional uint32 mode = 5;
+    optional uint32 dev = 6;
+    optional uint64 ino = 7;
+  }
 
-message StatResponse {
-  required string path = 1;
+  message Readdir {
+    repeated string files = 1;
+  }
+
+
+  message Open {
+    required uint32 fd = 1;
+  }
+
+
+  message Read {
+    required bytes data = 1;
+    required int32 bytesRead = 2;
+  }
+
+
+  message Close {
+  }
+
+  message Success {
+    oneof msg {
+      Readdir readdir = 1;
+      Stat stat = 2;
+      Open open = 3;
+      Read read = 4;
+      Close close = 5;
+    }
+  }
+
   oneof response {
-    int32 err = 2;
-    Stat stat = 3;
+    int32 err = 1;
+    Success success = 2;
   }
 }
 
-message Stat {
-  optional uint32 size = 1;
-  optional uint64 atime = 2;
-  optional uint64 mtime = 3;
-  optional uint64 ctime = 4;
-  optional uint32 mode = 5;
-  optional uint32 dev = 6;
-  optional uint64 ino = 7;
-}
 
-message ReadDirRequest {
-  required string path = 1;
-}
-
-message ReadDirResponse {
-  optional string path = 1;
-  oneof response {
-    int32 err = 2;
-    Dir dir = 3;
-  }
-}
-
-message Dir {
-  repeated string file = 1;
-}
-
-message OpenRequest {
-  required string path = 1;
-}
-
-message OpenResponse {
-  required string path = 1;
-  oneof response {
-    int32 err = 2;
-    uint32 fd = 3;
-  }
-}
-
-message ReadRequest {
-  required uint32 fd = 1;
-  required uint32 len = 2;
-  required uint32 pos = 3;
-}
-
-message ReadResponse {
-  required uint32 fd = 1;
-  required uint32 len = 2;
-  required uint32 pos = 3;
-  optional int32 err = 4;
-  optional bytes data = 5;
-  optional int32 bytesRead = 6;
-}
-
-message CloseRequest {
-  required uint32 fd = 1;
-}
-
-message CloseResponse {
-  required uint32 fd = 1;
-  optional int32 err = 2;
-}
