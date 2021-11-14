@@ -47,7 +47,6 @@ describe('basic', (context) => {
       assert.true(err.errno === -2, 'Correct err on stating a file which does not exist')
     })
 
-    console.log(filePath)
     const fd = await hdp1.fs.open(filePath)
     assert.true(typeof fd === 'number', 'File descriptor returned')
     assert.true(fd > 0, 'File descriptor > 0')
@@ -55,6 +54,10 @@ describe('basic', (context) => {
     const { data, bytesRead } = await hdp1.fs.read(fd, undefined, 10, 0)
     assert.true(Buffer.isBuffer(data), 'File read correctly')
     assert.true(bytesRead === 10, 'Correct number of bytes read')
+
+    await hdp1.fs.readdir(`${subpath}/../`).catch((err) => {
+      assert.equals(err.errno, -2, 'Should give error on attempting read outside share dir')
+    })
 
     await hdp1.fs.close(fd)
 
