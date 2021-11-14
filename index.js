@@ -23,9 +23,8 @@ class Hdp extends EventEmitter {
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares', this.shares)
-    this.mountDir = options.mountDir
     this.options = options
-    this.fuse = new Fuse(this.fs)
+    this.fuse = new Fuse(this.fs, { mountDir: options.mountDir })
     this.rpc = new Rpc(this.shares)
 
     process.once('SIGINT', () => { self.stop() })
@@ -68,15 +67,16 @@ class Hdp extends EventEmitter {
     log(`Left ${name}`)
   }
 
-  async stop () {
+  async stop (dontExit) {
+    log('Closing down...')
     await Promise.all([
       this.rpc.closeAll(), // Close all open fds
-      this.fuse.unmount() // Unmount if mounted
-      // TODO leave / destroy swarms
+      this.fuse.unmount(), // Unmount if mounted
+      this.hyperswarm.destroy()
     ]).catch((err) => {
       console.log(err)
     })
-    process.exit()
+    if (!dontExit) process.exit()
   }
 }
 
