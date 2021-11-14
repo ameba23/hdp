@@ -15,7 +15,7 @@ try {
 } catch (err) {
   const sodium = require('sodium-native')
   argv.seed = Buffer.alloc(32)
-  sodium.randomBytes_buf(argv.seed)
+  sodium.randombytes_buf(argv.seed)
   fs.writeFileSync(join(storage, 'key'), argv.seed)
 }
 
