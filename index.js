@@ -39,7 +39,7 @@ class Hdp extends EventEmitter {
 
       // TODO dont destroy - have a connection timeout
       conn.once('close', () => {
-        log(`Peer ${printKey(conn.publicKey)} disconnected`)
+        log(`Peer ${printKey(conn.remotePublicKey)} disconnected`)
         delete self.peers[remotePk]
       })
     })
