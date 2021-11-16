@@ -6,6 +6,13 @@ const mkdirp = require('mkdirp')
 const { join } = require('path')
 const homeDir = require('os').homedir()
 
+let majorNodeVersion = process.version.split('.')[0]
+if (majorNodeVersion[0] === 'v') majorNodeVersion = majorNodeVersion.slice(1)
+if (parseInt(majorNodeVersion) < 14) {
+  console.log('Requires node 14')
+  process.exit(1)
+}
+
 const storage = argv.storage || join(homeDir, '.hdp')
 mkdirp.sync(storage)
 
