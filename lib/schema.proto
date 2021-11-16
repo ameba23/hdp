@@ -42,12 +42,12 @@ message Request {
 
 message Response {
   message Stat {
-    optional uint64 size = 1;
+    required uint64 size = 1;
     optional uint64 atime = 2;
     optional uint64 mtime = 3;
     optional uint64 ctime = 4;
     optional uint32 mode = 5;
-    optional uint32 dev = 6;
+    /* optional uint32 dev = 6; */
     /* optional uint64 ino = 7; */
   }
 
@@ -55,17 +55,14 @@ message Response {
     repeated string files = 1;
   }
 
-
   message Open {
     required uint32 fd = 1;
   }
-
 
   message Read {
     required bytes data = 1;
     required int32 bytesRead = 2;
   }
-
 
   message Close {
   }
