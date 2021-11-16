@@ -46,11 +46,6 @@ describe('fuse', (context) => {
     assert.true(typeof stat.size === 'number', 'Stat object has a size property')
     assert.true(stat.size > 0, 'Size is > 0')
 
-    fs.stat(`${subpath}/not-a-file`).catch((err) => {
-      console.log(err)
-      assert.true(err.errno === -2, 'Correct err on stating a file which does not exist')
-    })
-
     const fh = await fs.open(filePath)
     assert.true(fh.fd > 0, 'File descriptor > 0')
 
@@ -63,6 +58,12 @@ describe('fuse', (context) => {
     // })
 
     await fh.close()
+
+    console.log('stating a file which does not exist...')
+    fs.stat(join(subpath, 'not-a-file')).catch((err) => {
+      console.log(err)
+      assert.true(err.errno === -2, 'Correct err on stating a file which does not exist')
+    })
 
     await Promise.all([
       hdp1.stop(true).catch(console.log),
