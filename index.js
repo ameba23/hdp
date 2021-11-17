@@ -31,15 +31,19 @@ class Hdp extends EventEmitter {
 
     this.hyperswarm.on('connection', async (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
+      if (self.peers[remotePk]) {
+        console.log('Duplicate connection')
+        return self.stop()
+      }
       self.peers[remotePk] = new Peer(conn, this.rpc)
       const name = await self.peers[remotePk].getName()
-      log(`Peer connected. ${name} Our pk: ${printKey(conn.publicKey)} Remote pk: ${printKey(conn.remotePublicKey)}`)
+      log(`Peer ${name} connected.`)
       self.fs.peerNames[name] = self.peers[remotePk]
       self.emit('connection')
 
       // TODO dont destroy - have a connection timeout
       conn.once('close', () => {
-        log(`Peer ${printKey(conn.remotePublicKey)} disconnected`)
+        log(`Peer ${name} disconnected`)
         delete self.peers[remotePk]
       })
     })
