@@ -48,7 +48,8 @@ message Response {
     optional uint64 ctime = 4;
     optional uint32 mode = 5;
     /* optional uint32 dev = 6; */
-    /* optional uint64 ino = 7; */
+    optional uint64 ino = 6;
+    optional uint32 nlink = 7;
   }
 
   message Readdir {
