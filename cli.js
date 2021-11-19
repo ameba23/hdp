@@ -16,8 +16,11 @@ mkdirp.sync(storage)
 let opts = {}
 try {
   opts = toml.parse(fs.readFileSync(join(storage, 'config.toml')))
-} catch (err) {}
+} catch (err) {
+  console.log(err)
+}
 
+console.log(opts)
 Object.assign(opts, argv)
 
 // Retrieve identity from file
