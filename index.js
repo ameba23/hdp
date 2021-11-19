@@ -6,6 +6,7 @@ const Hdpfs = require('./lib/fs')
 const { nameToTopic } = require('./lib/crypto')
 const Peer = require('./lib/peer')
 const Rpc = require('./lib/rpc')
+const handshake = require('./lib/handshake')
 
 module.exports = function (options) {
   return new Hdp(options)
@@ -25,6 +26,7 @@ class Hdp extends EventEmitter {
     this.options = options
     this.fuse = new Fuse(this.fs, { mountDir: options.mountDir })
     this.rpc = new Rpc(this.shares)
+    this.topics = []
 
     process.once('SIGINT', () => { self.stop() })
 
@@ -34,12 +36,21 @@ class Hdp extends EventEmitter {
         log('Duplicate connection')
         delete self.peers[remotePk]
       }
+
+      let handshakeErr
+      await handshake(info.topics, conn, this.topics).catch(() => {
+        log('Handshake failed, dropping connection')
+        handshakeErr = true
+      })
+      if (handshakeErr) return
+
       self.peers[remotePk] = new Peer(conn, this.rpc)
 
       const name = await self.peers[remotePk].getName()
       log(`Peer ${name} connected.`)
       self.fs.peerNames[name] = self.peers[remotePk]
       self.emit('connection')
+
       // TODO dont destroy - have a connection timeout
       conn.once('close', () => {
         log(`Peer ${name} disconnected`)
@@ -50,13 +61,9 @@ class Hdp extends EventEmitter {
 
   async join (name) {
     log(`Joining ${name}`)
-    const config = this.options.server
-      ? { server: true, client: false }
-      : this.options.client
-        ? { server: false, client: true }
-        : { server: true, client: true }
+    this.topics.push(name)
 
-    const discovery = this.hyperswarm.join(nameToTopic(name), config)
+    const discovery = this.hyperswarm.join(nameToTopic(name), { server: true, client: true })
     await Promise.all([
       discovery.flushed(), // Waits for the topic to be fully announced on the DHT
       this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
