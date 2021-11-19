@@ -23,7 +23,8 @@
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
     "protocol-buffers-encodings": "^1.1.1",
-    "sodium-native": "^3.3.0"
+    "sodium-native": "^3.3.0",
+    "toml": "^3.0.0"
   },
   "devDependencies": {
     "protocol-buffers": "^4.2.0",
