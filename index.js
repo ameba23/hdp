@@ -56,6 +56,7 @@ class Hdp extends EventEmitter {
         console.log(conn.destroyed)
         // await new Promise((resolve) => { setTimeout(resolve, 2000) })
         delete self.peers[remotePk]
+        delete self.fs.peernames[name]
       })
     })
   }
