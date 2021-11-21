@@ -51,8 +51,11 @@ class Hdp extends EventEmitter {
       self.fs.peerNames[name] = self.peers[remotePk]
       self.emit('connection')
 
-      conn.once('close', () => {
+      conn.once('close', async () => {
         log(`Peer ${name} disconnected`)
+        console.log(conn)
+        await new Promise((resolve) => { setTimeout(resolve, 2000) })
+        delete self.peers[remotePk]
       })
     })
   }
