@@ -53,8 +53,6 @@ class Hdp extends EventEmitter {
 
       conn.on('close', async () => {
         log(`Peer ${name} disconnected`)
-        // await new Promise((resolve) => { setTimeout(resolve, 2000) })
-        delete self.peers[remotePk]
       })
     })
   }
