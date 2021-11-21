@@ -60,7 +60,7 @@ describe('basic', (context) => {
 
       const fd = await hdp1.fs.open(filePath)
       assert.true(typeof fd === 'number', 'File descriptor returned')
-      assert.true(fd > 0, 'File descriptor > 0')
+      assert.false(isNaN(fd), 'File desciptor is a number')
 
       const { data, bytesRead } = await hdp1.fs.read(fd, undefined, 10, 0)
       assert.true(Buffer.isBuffer(data), 'File read correctly')
