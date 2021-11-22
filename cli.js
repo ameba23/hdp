@@ -4,7 +4,8 @@ const argv = require('minimist')(process.argv.slice(2))
 const toml = require('toml')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
-const { join } = require('path')
+const { join, basename } = require('path')
+const { red, yellow } = require('chalk')
 const homeDir = require('os').homedir()
 
 checkNodeVersion()
@@ -37,6 +38,8 @@ try {
   fs.writeFileSync(join(storage, 'key'), opts.seed)
 }
 
+if (opts.debug) process.env.DEBUG = 'hdp*'
+
 const hdp = Hdp(opts)
 
 if (opts.mount) {
@@ -57,16 +60,19 @@ function checkNodeVersion () {
 }
 
 function usage (message) {
-  if (message) console.log(message)
+  const command = basename(process.argv[1])
+  if (message) console.log(red(message))
   console.log(`
+Usage: ${command} options
+
 Options:
-- shares - one or more directories containing media to share
-- join - topic name to join - you will connect to peers who enter the same name
-- mount - directory to mount to. Will be created if it does not exist. If not given, will not mount.
+- ${yellow('shares')} - one or more directories containing media to share
+- ${yellow('join')} - topic name to join - you will connect to peers who enter the same name
+- ${yellow('mount')} - directory to mount to. Will be created if it does not exist. If not given, will not mount.
 
 Example command line usage:
 
-./cli.js --join someplace --shares '/home/me/media' --mount ./hdp
+${command} --join someplace --shares '/home/me/media' --mount ./hdp
 
 Example configuration file: ~/.hdp/config.toml
 

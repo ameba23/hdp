@@ -8,6 +8,10 @@ The [wire protocol](./lib/schema.proto) is largely inspired by [SFTP](https://da
 
 Peer discovery, [NOISE](https://noiseprotocol.org/) handshaking and stream encryption is done by [hyperswarm](https://github.com/hyperswarm/hyperswarm)
 
+Design goals:
+- Minimal setup - do not need to wait to hash files or build an index.
+- Can be used with large media collections
+
 ## Usage
 
 Requires node 14.
