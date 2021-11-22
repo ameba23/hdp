@@ -24,7 +24,7 @@ class Hdp extends EventEmitter {
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares', this.shares)
     this.options = options
-    this.fuse = new Fuse(this.fs, { mountDir: options.mountDir })
+    this.fuse = new Fuse(this.fs, options.mount)
     this.rpc = new Rpc(this.shares)
     this.topics = []
 
