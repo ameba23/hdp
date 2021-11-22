@@ -1,12 +1,12 @@
-harddrive party
+# harddrive party
 
 Mount peer's shared directories over FUSE.
 
-This allows 2 or more peers to share files. Peers choose one or more directories to share, and a swarm 'topic' name to meet at. When the program is run, it creates a read-only FUSE mount of the remote directories of all connected peers.
+This allows two or more peers to share files. Peers choose one or more directories to share, and a swarm 'topic' name to meet at. When the program is run, it creates a read-only FUSE mount of the remote directories of all connected peers.
 
-The wire protocol is largely inspired by SFTP, but is read only. File metadata is cached locally in memory but file content is not.
+The [wire protocol](./lib/schema.proto) is largely inspired by [SFTP](https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02), but only allows read operations. File metadata is cached locally in memory but file content is not.
 
-Peer discovery, NOISE handshaking and stream encryption is done by [hyperswarm](https://github.com/hyperswarm/hyperswarm)
+Peer discovery, [NOISE](https://noiseprotocol.org/) handshaking and stream encryption is done by [hyperswarm](https://github.com/hyperswarm/hyperswarm)
 
 ## Usage
 
