@@ -1,7 +1,7 @@
 {
   "name": "hdp",
   "version": "0.1.0",
-  "description": "Filesharing with fuse",
+  "description": "harddrive-party - peer to peer filesharing with fuse",
   "main": "index.js",
   "scripts": {
     "test": "tape 'test/**/*.test.js' | tap-spec",
@@ -17,6 +17,7 @@
   "author": "peg",
   "license": "AGPL-3.0-only",
   "dependencies": {
+    "chalk": "^4.1.2",
     "debug": "^4.3.2",
     "fuse-native": "^2.2.6",
     "hyperswarm": "^3.0.0",

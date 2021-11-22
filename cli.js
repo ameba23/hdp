@@ -68,7 +68,7 @@ Example command line usage:
 
 ./cli.js --join someplace --shares '/home/me/media' --mount ./hdp
 
-Example configuration file:
+Example configuration file: ~/.hdp/config.toml
 
 shares = [
   "/home/me/music",
