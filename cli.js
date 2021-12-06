@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const Hdp = require('.')
+const tcpServer = require('./lib/tcp-interface/tcp-server')
 const argv = require('minimist')(process.argv.slice(2))
 const toml = require('toml')
 const fs = require('fs')
@@ -45,6 +46,11 @@ const hdp = Hdp(opts)
 if (opts.mount) {
   console.log(`Mounting at ${opts.mount}`)
   hdp.fuse.mount()
+}
+
+if (opts.tcp) {
+  console.log('Starting TCP server')
+  tcpServer(hdp)
 }
 
 console.log(`Joining ${opts.join}`)

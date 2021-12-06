@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+message ClientMessage {
+  required int32 id = 1;
+
+  message Stat {
+    required string path = 1;
+  }
+
+  message Readdir {
+    required string path = 1;
+  }
+
+  message Open {
+    required string path = 1;
+  }
+
+  message Read {
+    required uint32 fd = 1;
+    required uint32 len = 2;
+    required uint32 pos = 3;
+  }
+
+  message Close {
+    required uint32 fd = 1;
+  }
+
+  oneof msg {
+    Readdir readdir = 2;
+    Stat stat = 3;
+    Open open = 4;
+    Read read = 5;
+    Close close = 6;
+  }
+}
+
+message ServerMessage {
+  required int32 id = 1;
+
+  message Stat {
+    required uint64 size = 1;
+    optional uint64 atime = 2;
+    optional uint64 mtime = 3;
+    optional uint64 ctime = 4;
+    optional uint32 mode = 5;
+    /* optional uint32 dev = 6; */
+    optional uint64 ino = 6;
+    optional uint32 nlink = 7;
+  }
+
+  message Readdir {
+    repeated string files = 1;
+  }
+
+  message Open {
+    required uint32 fd = 1;
+  }
+
+  message Read {
+    required bytes data = 1;
+    required int32 bytesRead = 2;
+  }
+
+  message Close {
+  }
+
+  message Success {
+    oneof msg {
+      Readdir readdir = 1;
+      Stat stat = 2;
+      Open open = 3;
+      Read read = 4;
+      Close close = 5;
+    }
+  }
+
+  oneof response {
+    int32 err = 2;
+    Success success = 3;
+  }
+}
+
+

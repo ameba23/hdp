@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "tape 'test/**/*.test.js' | tap-spec",
-    "protobuf": "protocol-buffers lib/schema.proto -o lib/messages.js"
+    "protobuf": "protocol-buffers lib/schema.proto -o lib/messages.js",
+    "protobuf-tcp": "protocol-buffers lib/tcp-interface/schema.proto -o lib/tcp-interface/messages.js"
   },
   "bin": {
     "hdp": "cli.js"
