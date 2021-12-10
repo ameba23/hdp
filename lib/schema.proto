@@ -9,10 +9,6 @@ message HdpMessage {
 }
 
 message Request {
-  message Handshake {
-    required bytes handshake = 1;
-  }
-
   message Readdir {
     required string path = 1;
   }
@@ -32,19 +28,14 @@ message Request {
   }
 
   oneof msg {
-    Handshake handshake = 1;
-    Readdir readdir = 2;
-    Open open = 3;
-    Read read = 4;
-    Close close = 5;
+    Readdir readdir = 1;
+    Open open = 2;
+    Read read = 3;
+    Close close = 4;
   }
 }
 
 message Response {
-  message Handshake {
-    required bytes handshake = 1;
-  }
-
   message Readdir {
     message Stat {
       required string name = 1;
@@ -75,11 +66,10 @@ message Response {
 
   message Success {
     oneof msg {
-      Handshake handshake = 1;
-      Readdir readdir = 2;
-      Open open = 3;
-      Read read = 4;
-      Close close = 5;
+      Readdir readdir = 1;
+      Open open = 2;
+      Read read = 3;
+      Close close = 4;
     }
   }
 
