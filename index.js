@@ -38,8 +38,9 @@ class Hdp extends EventEmitter {
       }
 
       let handshakeErr
-      await handshake(info.topics, conn, this.topics).catch(() => {
-        log('Handshake failed, dropping connection')
+      await handshake(info.topics, conn, this.topics).catch((err) => {
+        log(err)
+        log('Dropping connection')
         handshakeErr = true
       })
       if (handshakeErr) return

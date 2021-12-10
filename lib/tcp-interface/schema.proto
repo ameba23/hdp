@@ -21,11 +21,21 @@ message ClientMessage {
     required uint32 fd = 1;
   }
 
+  message Cat {
+    required string path = 1;
+  }
+
+  message Find {
+    required string searchTerm = 1;
+  }
+
   oneof msg {
     Readdir readdir = 2;
     Open open = 3;
     Read read = 4;
     Close close = 5;
+    Cat cat = 6;
+    Find find = 7;
   }
 }
 
@@ -60,12 +70,21 @@ message ServerMessage {
   message Close {
   }
 
+  message Find {
+    repeated string results = 1;
+  }
+
+  message EndResponse {
+  }
+
   message Success {
     oneof msg {
       Readdir readdir = 1;
       Open open = 2;
       Read read = 3;
       Close close = 4;
+      Find find = 5;
+      EndResponse endResponse = 6;
     }
   }
 
