@@ -32,10 +32,6 @@ class Hdp extends EventEmitter {
 
     this.hyperswarm.on('connection', async (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
-      if (self.peers[remotePk]) {
-        log('Duplicate connection')
-        self.peers[remotePk].setConnection(conn)
-      }
 
       let handshakeErr
       await handshake(info.topics, conn, this.topics).catch((err) => {
@@ -44,6 +40,11 @@ class Hdp extends EventEmitter {
         handshakeErr = true
       })
       if (handshakeErr) return
+
+      if (self.peers[remotePk]) {
+        log('Duplicate connection')
+        self.peers[remotePk].setConnection(conn)
+      }
 
       self.peers[remotePk] = self.peers[remotePk] || new Peer(conn, self.rpc)
 
