@@ -71,9 +71,19 @@ const commands = {
   cat () {
     const client = new TcpClient()
     client.on('error', handleError)
-    client.multiResponseRequest({
-      cat: { path: argv._[1] || '/' }
-    }).pipe(process.stdout)
+
+    async function processResponse () {
+      for await (const output of client.multiResponseRequest(
+        { cat: { path: argv._[1] || '/' } })) {
+        console.log(output.success.cat.data.toString())
+      }
+    }
+
+    processResponse().then(() => {
+      console.log('done')
+    }).catch((err) => {
+      console.log(err)
+    })
   },
   // cp () {
   //   const request = new TcpRequest({
@@ -112,7 +122,10 @@ function usage (message) {
   const name = basename(process.argv[1])
   if (message) console.log(red(message))
   console.log(`
-Usage: ${name} options
+Usage: ${name} command options
+
+Commands:
+start - start the server
 
 Options:
 - ${yellow('shares')} - one or more directories containing media to share

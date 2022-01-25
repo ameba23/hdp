@@ -86,15 +86,20 @@ message ServerMessage {
   message EndResponse {
   }
 
+  message Cat {
+    required bytes data = 1;
+  }
+
   message Success {
     oneof msg {
       Readdir readdir = 1;
       Open open = 2;
       Read read = 3;
       Close close = 4;
-      Find find = 5;
-      Download download = 6;
-      EndResponse endResponse = 7;
+      Cat cat = 5;
+      Find find = 6;
+      Download download = 7;
+      EndResponse endResponse = 8;
     }
   }
 
