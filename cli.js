@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const Hdp = require('.')
 const tcpServer = require('./lib/tcp-interface/tcp-server')
-const TcpClient = require('./lib/tcp-interface/tcpClient')
+const TcpClient = require('./lib/tcp-interface/tcp-client')
 const argv = require('minimist')(process.argv.slice(2))
 const toml = require('toml')
 const fs = require('fs')
