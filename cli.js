@@ -9,7 +9,7 @@ const mkdirp = require('mkdirp')
 const { join, basename } = require('path')
 const { blue, green, red, yellow } = require('chalk')
 const homeDir = require('os').homedir()
-const { readableBytes, isDir } = require('../util')
+const { readableBytes, isDir } = require('./lib/util')
 
 checkNodeVersion()
 
