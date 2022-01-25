@@ -29,6 +29,11 @@ message ClientMessage {
     required string searchTerm = 1;
   }
 
+  message Download {
+    required string path = 1;
+    optional string destination = 2;
+  }
+
   oneof msg {
     Readdir readdir = 2;
     Open open = 3;
@@ -36,6 +41,7 @@ message ClientMessage {
     Close close = 5;
     Cat cat = 6;
     Find find = 7;
+    Download download = 8;
   }
 }
 
@@ -74,6 +80,9 @@ message ServerMessage {
     repeated string results = 1;
   }
 
+  message Download {
+  }
+
   message EndResponse {
   }
 
@@ -84,7 +93,8 @@ message ServerMessage {
       Read read = 3;
       Close close = 4;
       Find find = 5;
-      EndResponse endResponse = 6;
+      Download download = 6;
+      EndResponse endResponse = 7;
     }
   }
 

@@ -1,7 +1,7 @@
 {
   "name": "hdp",
   "version": "0.1.0",
-  "description": "harddrive-party - peer to peer filesharing with fuse",
+  "description": "harddrive-party - peer to peer filesharing",
   "main": "index.js",
   "scripts": {
     "test": "tape 'test/**/*.test.js' | tap-spec",
@@ -20,7 +20,6 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "debug": "^4.3.2",
-    "fuse-native": "^2.2.6",
     "hyperswarm": "^3.0.0",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
