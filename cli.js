@@ -107,9 +107,6 @@ const commands = {
   //   const writeStream = createWriteStream(argv._[2])
   //   request.client.pipe(writeStream)
   // }
-  find () {
-
-  }
 }
 
 if (typeof commands[argv._[0]] !== 'function') {
