@@ -82,6 +82,7 @@ message ServerMessage {
   }
 
   message Download {
+    required int32 bytesRead = 1;
   }
 
   message EndResponse {

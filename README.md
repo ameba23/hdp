@@ -36,4 +36,10 @@ join = "someplace"
 ## TODO
 - [x] Capability verification 
 - [x] LRU Cache
+- [ ] Local download
+- [ ] Remote queueing
+- [ ] Local queueing
+- [ ] Graceful restart download on reconnect / restart
+- [ ] Recursive directory download
 - [ ] Timeout
+- [ ] yargs

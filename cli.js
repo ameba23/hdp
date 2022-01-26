@@ -56,24 +56,32 @@ const commands = {
   ls () {
     const client = new TcpClient()
     client.on('error', handleError)
-    client.singleResponseRequest({
-      readdir: { path: argv._[1] || '/' }
-    }).then((output) => {
-      // console.log(output)
-      output.success.readdir.files.forEach(f => {
-        console.log(
-          isDir(f.mode) ? blue(`[${f.name}]`) : yellow(f.name),
-          red(readableBytes(f.size))
-        )
-      })
-    }).catch(handleError)
+
+    async function processResponse () {
+      for await (const output of client.request(
+        { readdir: { path: argv._[1] || '/' } }
+      )) {
+        output.success.readdir.files.forEach(f => {
+          console.log(
+            isDir(f.mode) ? blue(`[${f.name}]`) : yellow(f.name),
+            red(readableBytes(f.size))
+          )
+        })
+      }
+    }
+
+    processResponse().then(() => {
+      console.log('[done]') // Temp
+    }).catch((err) => {
+      console.log(red(err))
+    })
   },
   cat () {
     const client = new TcpClient()
     client.on('error', handleError)
 
     async function processResponse () {
-      for await (const output of client.multiResponseRequest(
+      for await (const output of client.request(
         { cat: { path: argv._[1] || '/' } })) {
         console.log(output.success.cat.data.toString())
       }
@@ -88,13 +96,38 @@ const commands = {
   find () {
     const client = new TcpClient()
     client.on('error', handleError)
-    client.singleResponseRequest({
-      find: { basepath: argv.basepath, searchterm: argv.searchterm }
-    }).then((output) => {
-      output.success.find.results.forEach(f => {
-        console.log(green(f))
-      })
-    }).catch(handleError)
+
+    async function processResponse () {
+      for await (const output of client.request(
+        { find: { basepath: argv.basepath, searchterm: argv.searchterm } })) {
+        output.success.find.results.forEach(f => {
+          console.log(green(f))
+        })
+      }
+    }
+
+    processResponse().then(() => {
+      console.log('[done]') // Temp
+    }).catch((err) => {
+      console.log(red(err))
+    })
+  },
+  download () {
+    const client = new TcpClient()
+    client.on('error', handleError)
+
+    async function processResponse () {
+      for await (const output of client.request(
+        { download: { path: argv._[1], destination: argv._[2] } })) {
+        console.log('Writing chunk ', output.success.download.bytesRead)
+      }
+    }
+
+    processResponse().then(() => {
+      console.log('[done]') // Temp
+    }).catch((err) => {
+      console.log(red(err))
+    })
   }
   // cp () {
   //   const request = new TcpRequest({
