@@ -91,13 +91,9 @@ const commands = {
     client.singleResponseRequest({
       find: { basepath: argv.basepath, searchterm: argv.searchterm }
     }).then((output) => {
-      console.log(output)
-      // output.success.readdir.files.forEach(f => {
-      //   console.log(
-      //     isDir(f.mode) ? blue(`[${f.name}]`) : yellow(f.name),
-      //     red(readableBytes(f.size))
-      //   )
-      // })
+      output.success.find.results.forEach(f => {
+        console.log(green(f))
+      })
     }).catch(handleError)
   }
   // cp () {
