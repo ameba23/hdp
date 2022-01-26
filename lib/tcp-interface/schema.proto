@@ -26,7 +26,8 @@ message ClientMessage {
   }
 
   message Find {
-    required string searchTerm = 1;
+    optional string basepath = 1;
+    optional string searchterm = 2;
   }
 
   message Download {

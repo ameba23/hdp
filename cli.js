@@ -59,7 +59,7 @@ const commands = {
     client.singleResponseRequest({
       readdir: { path: argv._[1] || '/' }
     }).then((output) => {
-      console.log(output)
+      // console.log(output)
       output.success.readdir.files.forEach(f => {
         console.log(
           isDir(f.mode) ? blue(`[${f.name}]`) : yellow(f.name),
@@ -80,11 +80,26 @@ const commands = {
     }
 
     processResponse().then(() => {
-      console.log('done')
+      console.log('[EOF]') // Temp
     }).catch((err) => {
-      console.log(err)
+      console.log(red(err))
     })
   },
+  find () {
+    const client = new TcpClient()
+    client.on('error', handleError)
+    client.singleResponseRequest({
+      find: { basepath: argv.basepath, searchterm: argv.searchterm }
+    }).then((output) => {
+      console.log(output)
+      // output.success.readdir.files.forEach(f => {
+      //   console.log(
+      //     isDir(f.mode) ? blue(`[${f.name}]`) : yellow(f.name),
+      //     red(readableBytes(f.size))
+      //   )
+      // })
+    }).catch(handleError)
+  }
   // cp () {
   //   const request = new TcpRequest({
   //     cat: { path: argv._[1] || '/' }

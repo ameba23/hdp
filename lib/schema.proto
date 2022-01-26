@@ -27,11 +27,17 @@ message Request {
     required uint32 fd = 1;
   }
 
+  message Find {
+    optional string basepath = 1;
+    optional string searchterm = 2;
+  }
+
   oneof msg {
     Readdir readdir = 1;
     Open open = 2;
     Read read = 3;
     Close close = 4;
+    Find find = 5;
   }
 }
 
@@ -64,12 +70,17 @@ message Response {
   message Close {
   }
 
+  message Find {
+    repeated string results = 1;
+  }
+
   message Success {
     oneof msg {
       Readdir readdir = 1;
       Open open = 2;
       Read read = 3;
       Close close = 4;
+      Find find = 5;
     }
   }
 
