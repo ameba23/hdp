@@ -1,17 +1,7 @@
 syntax = "proto2";
 
-message HdpMessage {
-  required uint32 id = 1;
-  oneof msg {
-    Request request = 2;
-    Response response = 3;
-  }
-}
-
-message Request {
-  message Handshake {
-    required bytes token = 1;
-  }
+message ClientMessage {
+  required int32 id = 1;
 
   message Readdir {
     required string path = 1;
@@ -31,34 +21,42 @@ message Request {
     required uint32 fd = 1;
   }
 
+  message Cat {
+    required string path = 1;
+  }
+
   message Find {
     optional string basepath = 1;
     optional string searchterm = 2;
   }
 
+  message Download {
+    required string path = 1;
+    optional string destination = 2;
+  }
+
   oneof msg {
-    Handshake handshake = 1;
     Readdir readdir = 2;
     Open open = 3;
     Read read = 4;
     Close close = 5;
-    Find find = 6;
+    Cat cat = 6;
+    Find find = 7;
+    Download download = 8;
   }
 }
 
-message Response {
-  message Handshake {
-    required bytes token = 1;
-  }
+message ServerMessage {
+  required int32 id = 1;
 
   message Readdir {
     message Stat {
       required string name = 1;
       required uint64 size = 2;
-      optional uint64 atime = 3;
-      optional uint64 mtime = 4;
-      optional uint64 ctime = 5;
-      optional uint32 mode = 6;
+      optional uint32 mode = 3;
+      optional uint64 atime = 4;
+      optional uint64 mtime = 5;
+      optional uint64 ctime = 6;
       /* optional uint32 dev = 6; */
       optional uint64 ino = 7;
       optional uint32 nlink = 8;
@@ -83,20 +81,33 @@ message Response {
     repeated string results = 1;
   }
 
+  message Download {
+    required int32 bytesRead = 1;
+  }
+
+  message EndResponse {
+  }
+
+  message Cat {
+    required bytes data = 1;
+  }
+
   message Success {
     oneof msg {
-      Handshake handshake = 1;
-      Readdir readdir = 2;
-      Open open = 3;
-      Read read = 4;
-      Close close = 5;
+      Readdir readdir = 1;
+      Open open = 2;
+      Read read = 3;
+      Close close = 4;
+      Cat cat = 5;
       Find find = 6;
+      Download download = 7;
+      EndResponse endResponse = 8;
     }
   }
 
   oneof response {
-    int32 err = 1;
-    Success success = 2;
+    int32 err = 2;
+    Success success = 3;
   }
 }
 

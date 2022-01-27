@@ -1,6 +1,5 @@
 const Hyperswarm = require('hyperswarm')
 const EventEmitter = require('events')
-const Fuse = require('./lib/fuse')
 const log = require('debug')('hdp')
 const Hdpfs = require('./lib/fs')
 const { nameToTopic } = require('./lib/crypto')
@@ -22,9 +21,8 @@ class Hdp extends EventEmitter {
     this.fs = new Hdpfs()
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
-    log('Shares', this.shares)
+    log('Shares:', this.shares)
     this.options = options
-    this.fuse = new Fuse(this.fs, options.mount)
     this.rpc = new Rpc(this.shares)
     this.topics = []
 
@@ -32,17 +30,19 @@ class Hdp extends EventEmitter {
 
     this.hyperswarm.on('connection', async (conn, info) => {
       const remotePk = conn.remotePublicKey.toString('hex')
+
+      let handshakeErr
+      await handshake(info.topics, conn, this.topics).catch((err) => {
+        log(err)
+        log('Dropping connection')
+        handshakeErr = true
+      })
+      if (handshakeErr) return
+
       if (self.peers[remotePk]) {
         log('Duplicate connection')
         self.peers[remotePk].setConnection(conn)
       }
-
-      let handshakeErr
-      await handshake(info.topics, conn, this.topics).catch(() => {
-        log('Handshake failed, dropping connection')
-        handshakeErr = true
-      })
-      if (handshakeErr) return
 
       self.peers[remotePk] = self.peers[remotePk] || new Peer(conn, self.rpc)
 
@@ -79,7 +79,6 @@ class Hdp extends EventEmitter {
     log('Closing down...')
     await Promise.all([
       this.rpc.closeAll(), // Close all open fds
-      this.fuse.unmount(), // Unmount if mounted
       this.hyperswarm.destroy()
     ]).catch((err) => {
       console.log(err)
