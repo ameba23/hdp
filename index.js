@@ -6,7 +6,6 @@ const { nameToTopic } = require('./lib/crypto')
 const Peer = require('./lib/peer')
 const Rpc = require('./lib/rpc')
 const handshake = require('./lib/handshake')
-const fs = require('fs')
 
 module.exports = function (options) {
   return new Hdp(options)
@@ -85,18 +84,6 @@ class Hdp extends EventEmitter {
       console.log(err)
     })
     if (!dontExit) process.exit()
-  }
-
-  async * download (path, desination, offset) {
-    const ws = fs.createWriteStream(desination) // { start: offset }
-    ws.on('error', (err) => {
-      throw err
-    })
-    for await (const data of this.fs.createReadStream(path, offset)) {
-      ws.write(data)
-      yield data.length // number of bytes in this chunk
-    }
-    // ws.close() ?
   }
 }
 
