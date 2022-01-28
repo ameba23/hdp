@@ -37,9 +37,10 @@ join = "someplace"
 - [x] Capability verification 
 - [x] LRU Cache
 - [x] Local download
+- [ ] Default download directory option
 - [ ] Remote queueing
 - [ ] Local queueing
 - [ ] Graceful restart download on reconnect / restart
-- [ ] Recursive directory download
+- [x] Recursive directory download
 - [ ] Timeout
 - [x] yargs

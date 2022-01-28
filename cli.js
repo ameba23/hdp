@@ -103,7 +103,8 @@ async function tcpRequest (request, handleOutput) {
 // }
 
 function handleError (err) {
-  console.log(red(err))
+  console.log(red(err), err.errno)
   // TODO: pass the error code
+  console.log(err)
   process.exit(1)
 }
