@@ -42,7 +42,9 @@ const argv = yargs(process.argv.slice(2))
     command: 'find [searchterm]',
     desc: 'search for files',
     builder: (yargs) => {
-      // TODO basepath option
+      return yargs.option('basepath', {
+        description: 'directory to search'
+      })
     },
     handler: (argv) => {
       tcpRequest(
