@@ -43,4 +43,5 @@ join = "someplace"
 - [ ] Graceful restart download on reconnect / restart
 - [x] Recursive directory download
 - [ ] Timeout
-- [x] yargs
+- [ ] Search peers concurrently
+- [ ] Stream large search results

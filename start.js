@@ -5,11 +5,11 @@ const toml = require('toml')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const { join } = require('path')
-const { red, yellow } = require('chalk')
+const { red } = require('chalk')
 const homeDir = require('os').homedir()
-//
-// Options:
-// - ${yellow('shares')} - one or more directories containing media to share
+
+// Start command for cli to read configuration and start the server
+
 //
 // Example configuration file: ~/.hdp/config.toml
 //

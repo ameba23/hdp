@@ -1,5 +1,7 @@
 syntax = "proto2";
 
+// TCP interface messages
+
 message ClientMessage {
   required int32 id = 1;
 
