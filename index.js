@@ -1,5 +1,6 @@
 const Hyperswarm = require('hyperswarm')
 const EventEmitter = require('events')
+const Self = require('./lib/self')
 const log = require('debug')('hdp')
 const Hdpfs = require('./lib/fs')
 const { nameToTopic } = require('./lib/crypto')
@@ -19,12 +20,20 @@ class Hdp extends EventEmitter {
     this.hyperswarm = new Hyperswarm({ seed: options.seed })
     this.peers = {}
     this.fs = new Hdpfs()
+    this.publicKey = this.hyperswarm.keyPair.publicKey.toString('hex')
+
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares:', this.shares)
     this.options = options
     this.rpc = new Rpc(this.shares)
     this.topics = []
+
+    // Create a representation of ourself in our peers list
+    this.peers[this.publicKey] = new Self(this.publicKey, this.rpc)
+    this.peers[this.publicKey].getName().then((name) => {
+      self.fs.peerNames[name] = self.peers[this.publicKey]
+    })
 
     process.once('SIGINT', () => { self.stop() })
 
