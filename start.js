@@ -1,5 +1,5 @@
 const Hdp = require('.')
-const tcpServer = require('./lib/tcp-interface/tcp-server')
+const wsServer = require('./lib/ws-interface/ws-server')
 const { randomBytes } = require('./lib/crypto')
 const toml = require('toml')
 const fs = require('fs')
@@ -74,7 +74,7 @@ exports.handler = function (argv) {
   const hdp = Hdp(opts)
 
   console.log('Starting TCP server')
-  tcpServer(hdp)
+  wsServer(hdp)
 
   console.log(`Joining ${opts.join}`)
   hdp.join(opts.join)

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const TcpClient = require('./lib/tcp-interface/tcp-client')
+const WsClient = require('./lib/ws-interface/ws-client')
 const { blue, green, red, yellow } = require('chalk')
 const { readableBytes, isDir } = require('./lib/util')
 const yargs = require('yargs/yargs')
@@ -85,7 +85,7 @@ const argv = yargs(process.argv.slice(2))
 // console.log(argv)
 
 async function tcpRequest (request, handleOutput) {
-  const client = new TcpClient()
+  const client = new WsClient()
   client.on('error', handleError)
 
   const requestType = Object.keys(request)[0]
