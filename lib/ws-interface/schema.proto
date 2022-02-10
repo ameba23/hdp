@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-// TCP interface messages
+// WS interface messages
 
 message ClientMessage {
   required int32 id = 1;
