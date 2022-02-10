@@ -94,6 +94,7 @@ message Response {
       Close close = 5;
       Find find = 6;
     }
+    optional bool partial = 7;
   }
 
   oneof response {
