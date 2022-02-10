@@ -73,7 +73,7 @@ exports.handler = function (argv) {
 
   const hdp = Hdp(opts)
 
-  console.log('Starting TCP server')
+  console.log('Starting WS server')
   wsServer(hdp)
 
   console.log(`Joining ${opts.join}`)

@@ -15,7 +15,7 @@ const argv = yargs(process.argv.slice(2))
       yargs.default('path', '/')
     },
     handler: (argv) => {
-      tcpRequest({
+      wsRequest({
         readdir: { path: argv.path }
       }, (readdir) => {
         readdir.files.forEach(f => {
@@ -31,7 +31,7 @@ const argv = yargs(process.argv.slice(2))
     command: 'cat <file>',
     desc: 'display contents of a file',
     handler: (argv) => {
-      tcpRequest(
+      wsRequest(
         { cat: { path: argv.file } },
         (output) => {
           console.log(output.data.toString())
@@ -47,7 +47,7 @@ const argv = yargs(process.argv.slice(2))
       })
     },
     handler: (argv) => {
-      tcpRequest(
+      wsRequest(
         { find: { basepath: argv.basepath, searchterm: argv.searchterm } },
         (output) => {
           output.results.forEach(f => {
@@ -60,7 +60,7 @@ const argv = yargs(process.argv.slice(2))
     command: 'download <file> [destination]',
     desc: 'download a file',
     handler: (argv) => {
-      tcpRequest(
+      wsRequest(
         { download: { path: argv.file, destination: argv.destination } },
         (output) => {
           console.log('Writing chunk ', output.bytesRead)
@@ -68,12 +68,12 @@ const argv = yargs(process.argv.slice(2))
     }
   })
   .option('port', {
-    description: 'TCP port',
+    description: 'WS port',
     type: 'number',
     default: DEFAULT_PORT
   })
   .option('host', {
-    description: 'TCP host',
+    description: 'WS host',
     default: 'localhost'
   })
   .demandCommand()
@@ -84,7 +84,7 @@ const argv = yargs(process.argv.slice(2))
 
 // console.log(argv)
 
-async function tcpRequest (request, handleOutput) {
+async function wsRequest (request, handleOutput) {
   const client = new WsClient()
   client.on('error', handleError)
 
@@ -95,7 +95,7 @@ async function tcpRequest (request, handleOutput) {
 }
 
 // cp () {
-//   const request = new TcpRequest({
+//   const request = new Request({
 //     cat: { path: argv._[1] || '/' }
 //   })
 //   const writeStream = createWriteStream(argv._[2])
