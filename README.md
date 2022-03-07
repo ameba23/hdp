@@ -39,9 +39,9 @@ join = "someplace"
 - [x] Local download
 - [ ] Default download directory option
 - [ ] Remote queueing
-- [ ] Local queueing
+- [x] Local queueing
 - [ ] Graceful restart download on reconnect / restart
 - [x] Recursive directory download
 - [ ] Timeout
 - [ ] Search peers concurrently
-- [ ] Stream large search results
+- [x] Stream large search results
