@@ -4,7 +4,7 @@ const { blue, green, red, yellow } = require('chalk')
 const { readableBytes, isDir } = require('./lib/util')
 const yargs = require('yargs/yargs')
 
-const DEFAULT_PORT = 8124
+const DEFAULT_PORT = 2323
 
 const argv = yargs(process.argv.slice(2))
   .command(require('./start'))
@@ -63,7 +63,18 @@ const argv = yargs(process.argv.slice(2))
       wsRequest(
         { download: { path: argv.file, destination: argv.destination } },
         (output) => {
-          console.log('Writing chunk ', output.bytesRead)
+          console.log('Writing chunk ', output.data.length)
+        }).catch(handleError)
+    }
+  })
+  .command({
+    command: 'wishlist',
+    desc: 'display wishlist',
+    handler: (argv) => {
+      wsRequest(
+        { wishlist: {} },
+        (output) => {
+          console.log(output.item)
         }).catch(handleError)
     }
   })
@@ -90,6 +101,7 @@ async function wsRequest (request, handleOutput) {
 
   const requestType = Object.keys(request)[0]
   for await (const output of client.request(request)) {
+    console.log(output)
     handleOutput(output.success[requestType])
   }
 }

@@ -5,6 +5,9 @@ syntax = "proto2";
 message ClientMessage {
   required int32 id = 1;
 
+  message Wishlist {
+  }
+
   message Readdir {
     required string path = 1;
   }
@@ -25,6 +28,8 @@ message ClientMessage {
 
   message Cat {
     required string path = 1;
+    optional uint64 start = 2;
+    optional uint64 end = 3;
   }
 
   message Find {
@@ -45,6 +50,7 @@ message ClientMessage {
     Cat cat = 6;
     Find find = 7;
     Download download = 8;
+    Wishlist wishlist = 9;
   }
 }
 
@@ -56,12 +62,6 @@ message ServerMessage {
       required string name = 1;
       required uint64 size = 2;
       optional uint32 mode = 3;
-      optional uint64 atime = 4;
-      optional uint64 mtime = 5;
-      optional uint64 ctime = 6;
-      /* optional uint32 dev = 6; */
-      optional uint64 ino = 7;
-      optional uint32 nlink = 8;
     }
 
     repeated Stat files = 1;
@@ -73,7 +73,6 @@ message ServerMessage {
 
   message Read {
     required bytes data = 1;
-    required int32 bytesRead = 2;
   }
 
   message Close {
@@ -85,6 +84,7 @@ message ServerMessage {
 
   message Download {
     required int32 bytesRead = 1;
+    optional string filePath = 2;
   }
 
   message EndResponse {
@@ -94,16 +94,21 @@ message ServerMessage {
     required bytes data = 1;
   }
 
+  message Wishlist {
+    repeated string item = 1;
+  }
+
   message Success {
     oneof msg {
-      Readdir readdir = 1;
-      Open open = 2;
-      Read read = 3;
-      Close close = 4;
-      Cat cat = 5;
-      Find find = 6;
-      Download download = 7;
-      EndResponse endResponse = 8;
+      EndResponse endResponse = 1;
+      Readdir readdir = 2;
+      Open open = 3;
+      Read read = 4;
+      Close close = 5;
+      Cat cat = 6;
+      Find find = 7;
+      Download download = 8;
+      Wishlist wishlist = 9;
     }
   }
 

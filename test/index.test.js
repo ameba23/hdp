@@ -62,9 +62,9 @@ describe('basic', (context) => {
       assert.true(typeof fd === 'number', 'File descriptor returned')
       assert.false(isNaN(fd), 'File desciptor is a number')
 
-      const { data, bytesRead } = await hdp1.fs.read(fd, undefined, 10, 0)
+      const { data } = await hdp1.fs.read(fd, undefined, 10, 0)
       assert.true(Buffer.isBuffer(data), 'File read correctly')
-      assert.true(bytesRead === 10, 'Correct number of bytes read')
+      assert.true(data.length === 10, 'Correct number of bytes read')
 
       await hdp1.fs.readdir(`${subpath}/../`).catch((err) => {
         assert.equals(err.errno, -2, 'Should give error on attempting read outside share dir')

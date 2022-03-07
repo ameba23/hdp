@@ -21,6 +21,7 @@
     "chalk": "^4.1.2",
     "debug": "^4.3.2",
     "hyperswarm": "^3.0.0",
+    "level": "^7.0.1",
     "minimist": "^1.2.5",
     "mkdirp": "^1.0.4",
     "protocol-buffers-encodings": "^1.1.1",
