@@ -6,7 +6,7 @@
   "scripts": {
     "test": "tape 'test/**/*.test.js' | tap-spec",
     "protobuf": "protocol-buffers lib/schema.proto -o lib/messages.js",
-    "protobuf-tcp": "protocol-buffers lib/tcp-interface/schema.proto -o lib/tcp-interface/messages.js"
+    "protobuf-ws": "protocol-buffers lib/ws-interface/schema.proto -o lib/ws-interface/messages.js"
   },
   "bin": {
     "hdp": "cli.js"
@@ -21,11 +21,12 @@
     "chalk": "^4.1.2",
     "debug": "^4.3.2",
     "hyperswarm": "^3.0.0",
-    "minimist": "^1.2.5",
+    "level": "^7.0.1",
     "mkdirp": "^1.0.4",
     "protocol-buffers-encodings": "^1.1.1",
     "sodium-native": "^3.3.0",
     "toml": "^3.0.0",
+    "ws": "^8.5.0",
     "yargs": "^17.3.1"
   },
   "devDependencies": {

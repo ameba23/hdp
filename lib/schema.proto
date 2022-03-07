@@ -57,13 +57,7 @@ message Response {
     message Stat {
       required string name = 1;
       required uint64 size = 2;
-      optional uint64 atime = 3;
-      optional uint64 mtime = 4;
-      optional uint64 ctime = 5;
-      optional uint32 mode = 6;
-      /* optional uint32 dev = 6; */
-      optional uint64 ino = 7;
-      optional uint32 nlink = 8;
+      optional uint32 mode = 3;
     }
 
     repeated Stat files = 1;
@@ -75,7 +69,6 @@ message Response {
 
   message Read {
     required bytes data = 1;
-    required int32 bytesRead = 2;
   }
 
   message Close {

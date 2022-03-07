@@ -19,7 +19,7 @@ class Hdp extends EventEmitter {
 
     this.hyperswarm = new Hyperswarm({ seed: options.seed })
     this.peers = {}
-    this.fs = new Hdpfs()
+    this.fs = new Hdpfs(options.storage)
     this.publicKey = this.hyperswarm.keyPair.publicKey.toString('hex')
 
     this.shares = options.shares
