@@ -12,6 +12,7 @@ message HdpMessage {
 
 message Request {
   message Handshake {
+    // TODO version number
     required bytes token = 1;
   }
 
@@ -50,6 +51,7 @@ message Request {
 
 message Response {
   message Handshake {
+    // TODO version number
     required bytes token = 1;
   }
 
