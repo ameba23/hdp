@@ -57,7 +57,7 @@ class Hdp extends EventEmitter {
 
       const name = await self.peers[remotePk].getName()
       log(`Peer ${name} connected.`)
-      self.fs.peerNames[name] = self.peers[remotePk]
+      await self.fs.addPeer(self.peers[remotePk])
       self.emit('connection')
 
       conn.on('close', async () => {
