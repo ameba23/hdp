@@ -22,7 +22,7 @@
     "debug": "^4.3.2",
     "hyperswarm": "^3.0.0",
     "level": "^7.0.1",
-    "metadb-ui": "^2.0.5",
+    "harddrive-party-ui": "git+https://gitlab.com/pegpeg/harddrive-party-ui.git",
     "mkdirp": "^1.0.4",
     "protocol-buffers-encodings": "^1.1.1",
     "sodium-native": "^3.3.0",
