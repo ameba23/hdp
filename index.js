@@ -3,7 +3,7 @@ const EventEmitter = require('events')
 const Self = require('./lib/self')
 const log = require('debug')('hdp')
 const Hdpfs = require('./lib/fs')
-const { nameToTopic } = require('./lib/crypto')
+const { nameToTopic, randomBytes } = require('./lib/crypto')
 const Peer = require('./lib/peer')
 const Rpc = require('./lib/rpc')
 const handshake = require('./lib/handshake')
@@ -27,7 +27,7 @@ class Hdp extends EventEmitter {
     log('Shares:', this.shares)
     this.options = options
     this.rpc = new Rpc(this.shares)
-    this.topics = []
+    this.swarms = {}
 
     // Create a representation of ourself in our peers list
     this.peers[this.publicKey] = new Self(this.publicKey, this.rpc)
@@ -41,7 +41,7 @@ class Hdp extends EventEmitter {
       const remotePk = conn.remotePublicKey.toString('hex')
 
       let handshakeErr
-      await handshake(info.topics, conn, this.topics).catch((err) => {
+      await handshake(info.topics, conn, ['boop']).catch((err) => {
         log(err)
         log('Dropping connection')
         handshakeErr = true
@@ -67,9 +67,9 @@ class Hdp extends EventEmitter {
   }
 
   async join (name) {
+    if (!name) name = randomBytes(32).toString('hex')
     log(`Joining ${name}`)
-    this.topics.push(name)
-
+    this.swarms[name] = true
     const discovery = this.hyperswarm.join(nameToTopic(name), { server: true, client: true })
     await Promise.all([
       discovery.flushed(), // Waits for the topic to be fully announced on the DHT
@@ -81,6 +81,7 @@ class Hdp extends EventEmitter {
   async leave (name) {
     log(`Leaving ${name}`)
     await this.hyperswarm.leave(nameToTopic(name))
+    this.swarms[name] = false
     log(`Left ${name}`)
   }
 
@@ -92,6 +93,7 @@ class Hdp extends EventEmitter {
     ]).catch((err) => {
       console.log(err)
     })
+    this.swarms = {}
     if (!dontExit) process.exit()
   }
 }

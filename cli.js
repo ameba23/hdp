@@ -78,6 +78,28 @@ const argv = yargs(process.argv.slice(2))
         }).catch(handleError)
     }
   })
+  .command({
+    command: 'join <swarm>',
+    desc: 'join swarm',
+    handler: (argv) => {
+      wsRequest(
+        { swarm: { name: argv.swarm, join: true } },
+        (output) => {
+          console.log(output.item)
+        }).catch(handleError)
+    }
+  })
+  .command({
+    command: 'leave <swarm>',
+    desc: 'leave swarm',
+    handler: (argv) => {
+      wsRequest(
+        { swarm: { name: argv.swarm, join: false } },
+        (output) => {
+          console.log(output.item)
+        }).catch(handleError)
+    }
+  })
   .option('port', {
     description: 'WS port',
     type: 'number',

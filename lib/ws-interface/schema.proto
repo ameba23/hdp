@@ -42,6 +42,11 @@ message ClientMessage {
     optional string destination = 2;
   }
 
+  message Swarm {
+    required string name = 1;
+    required bool join = 2;
+  }
+
   oneof msg {
     Readdir readdir = 2;
     Open open = 3;
@@ -51,6 +56,7 @@ message ClientMessage {
     Find find = 7;
     Download download = 8;
     Wishlist wishlist = 9;
+    Swarm swarm = 10;
   }
 }
 
@@ -83,8 +89,9 @@ message ServerMessage {
   }
 
   message Download {
-    required int32 bytesRead = 1;
-    optional string filePath = 2;
+    required uint64 bytesRead = 1;
+    required uint64 totalBytesRead = 2;
+    optional string filePath = 3;
   }
 
   message EndResponse {
@@ -98,6 +105,21 @@ message ServerMessage {
     repeated string item = 1;
   }
 
+  // TODO not yet used
+  message PeerConnected {
+    required string name = 1;
+  }
+
+  // TODO not yet used
+  message PeerDisconnected {
+    required string name = 1;
+  }
+
+  message Swarm {
+    repeated string connected = 1;
+    repeated string disconnected = 2;
+  }
+
   message Success {
     oneof msg {
       EndResponse endResponse = 1;
@@ -109,6 +131,7 @@ message ServerMessage {
       Find find = 7;
       Download download = 8;
       Wishlist wishlist = 9;
+      Swarm swarm = 10;
     }
   }
 

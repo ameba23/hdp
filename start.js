@@ -7,6 +7,7 @@ const mkdirp = require('mkdirp')
 const { join } = require('path')
 const { red } = require('chalk')
 const homeDir = require('os').homedir()
+const serveUi = require('./lib/serve-ui')
 
 // Start command for cli to read configuration and start the server
 
@@ -30,11 +31,11 @@ exports.builder = (yargs) => {
   return yargs
     .example('hdp start --join someplace --shares \'/home/me/media\' \'home/me/Downloads\'')
     .option('shares', {
-      description: 'One of more directories containing media to share'
+      description: 'One or more directories containing media to share'
     })
     .option('join', {
       description: 'Topic name to join - you will connect to peers who enter the same name',
-      type: 'array'
+      type: 'string'
     })
     .option('debug', {
       description: 'Turn on debug logging',
@@ -44,6 +45,8 @@ exports.builder = (yargs) => {
 
 exports.handler = function (argv) {
   checkNodeVersion()
+
+  console.log(require('./lib/banner'))
 
   argv.storage = argv.storage || join(homeDir, '.hdp')
   mkdirp.sync(argv.storage)
@@ -58,7 +61,7 @@ exports.handler = function (argv) {
 
   Object.assign(opts, argv)
 
-  if (!opts.join) handleError('Missing swarm name to join')
+  // if (!opts.join) handleError('Missing swarm name to join')
 
   // Retrieve identity from file
   try {
@@ -76,8 +79,13 @@ exports.handler = function (argv) {
   console.log('Starting WS server')
   wsServer(hdp)
 
-  console.log(`Joining ${opts.join}`)
-  hdp.join(opts.join)
+  console.log('Starting http server')
+  serveUi(opts.storage, { host: opts.host, port: opts.port })
+
+  if (opts.join) {
+    console.log(`Joining ${opts.join}`)
+    hdp.join(opts.join)
+  }
 }
 
 function handleError (message) {
