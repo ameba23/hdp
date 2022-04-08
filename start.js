@@ -76,16 +76,14 @@ exports.handler = function (argv) {
 
   const hdp = Hdp(opts)
 
-  console.log('Starting WS server')
-  wsServer(hdp)
-
-  console.log('Starting http server')
-  serveUi(opts.storage, { host: opts.host, port: opts.port })
-
-  if (opts.join) {
-    console.log(`Joining ${opts.join}`)
-    hdp.join(opts.join)
-  }
+  serveUi(opts.storage, { host: opts.host, port: opts.port }).then((httpServer) => {
+    console.log('Starting WS server')
+    wsServer(hdp, httpServer)
+    if (opts.join) {
+      console.log(`Joining ${opts.join}`)
+      hdp.join(opts.join)
+    }
+  })
 }
 
 function handleError (message) {

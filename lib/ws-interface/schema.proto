@@ -3,27 +3,10 @@ syntax = "proto2";
 // WS interface messages
 
 message ClientMessage {
-  required int32 id = 1;
-
-  message Wishlist {
-  }
+  required uint32 id = 1;
 
   message Readdir {
     required string path = 1;
-  }
-
-  message Open {
-    required string path = 1;
-  }
-
-  message Read {
-    required uint32 fd = 1;
-    required uint32 len = 2;
-    required uint32 pos = 3;
-  }
-
-  message Close {
-    required uint32 fd = 1;
   }
 
   message Cat {
@@ -39,7 +22,7 @@ message ClientMessage {
 
   message Download {
     required string path = 1;
-    optional string destination = 2;
+    optional string destination = 3;
   }
 
   message Swarm {
@@ -47,21 +30,20 @@ message ClientMessage {
     required bool join = 2;
   }
 
+  message Wishlist {}
+
   oneof msg {
     Readdir readdir = 2;
-    Open open = 3;
-    Read read = 4;
-    Close close = 5;
-    Cat cat = 6;
-    Find find = 7;
-    Download download = 8;
-    Wishlist wishlist = 9;
-    Swarm swarm = 10;
+    Cat cat = 3;
+    Find find = 4;
+    Download download = 5;
+    Wishlist wishlist = 6;
+    Swarm swarm = 7;
   }
 }
 
 message ServerMessage {
-  required int32 id = 1;
+  required uint32 id = 1;
 
   message Readdir {
     message Stat {
@@ -71,17 +53,7 @@ message ServerMessage {
     }
 
     repeated Stat files = 1;
-  }
-
-  message Open {
-    required uint32 fd = 1;
-  }
-
-  message Read {
-    required bytes data = 1;
-  }
-
-  message Close {
+    optional string path = 2;
   }
 
   message Find {
@@ -92,6 +64,14 @@ message ServerMessage {
     required uint64 bytesRead = 1;
     required uint64 totalBytesRead = 2;
     optional string filePath = 3;
+    optional string fullFilePath = 4;
+  }
+
+  message Upload {
+    required uint64 bytesRead = 1;
+    required uint64 totalBytesRead = 2;
+    optional string filePath = 3;
+    optional string fullFilePath = 4;
   }
 
   message EndResponse {
@@ -124,14 +104,12 @@ message ServerMessage {
     oneof msg {
       EndResponse endResponse = 1;
       Readdir readdir = 2;
-      Open open = 3;
-      Read read = 4;
-      Close close = 5;
-      Cat cat = 6;
-      Find find = 7;
-      Download download = 8;
-      Wishlist wishlist = 9;
-      Swarm swarm = 10;
+      Cat cat = 3;
+      Find find = 4;
+      Download download = 5;
+      Upload upload = 6;
+      Wishlist wishlist = 7;
+      Swarm swarm = 8;
     }
   }
 
@@ -140,5 +118,3 @@ message ServerMessage {
     Success success = 3;
   }
 }
-
-

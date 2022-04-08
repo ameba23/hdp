@@ -19,14 +19,14 @@ class Hdp extends EventEmitter {
 
     this.hyperswarm = new Hyperswarm({ seed: options.seed })
     this.peers = {}
-    this.fs = new Hdpfs(options.storage)
+    this.fs = new Hdpfs(options.storage, this.emit)
     this.publicKey = this.hyperswarm.keyPair.publicKey.toString('hex')
 
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares:', this.shares)
     this.options = options
-    this.rpc = new Rpc(this.shares)
+    this.rpc = new Rpc(this.shares, this.emit)
     this.swarms = {}
 
     // Create a representation of ourself in our peers list
