@@ -25,6 +25,7 @@ class Hdp extends EventEmitter {
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares:', this.shares)
+
     this.options = options
     this.rpc = new Rpc(this.shares, this.emit)
     this.swarms = {}
@@ -41,11 +42,12 @@ class Hdp extends EventEmitter {
       const remotePk = conn.remotePublicKey.toString('hex')
 
       let handshakeErr
-      await handshake(info.topics, conn, ['boop']).catch((err) => {
-        log(err)
-        log('Dropping connection')
-        handshakeErr = true
-      })
+      await handshake(info.topics, conn, Object.keys(this.swarms))
+        .catch((err) => {
+          log(err)
+          log('Dropping connection')
+          handshakeErr = true
+        })
       if (handshakeErr) return
 
       if (self.peers[remotePk]) {
@@ -72,8 +74,10 @@ class Hdp extends EventEmitter {
     this.swarms[name] = true
     const discovery = this.hyperswarm.join(nameToTopic(name), { server: true, client: true })
     await Promise.all([
-      discovery.flushed(), // Waits for the topic to be fully announced on the DHT
-      this.hyperswarm.flush() // Waits for the swarm to connect to pending peers.
+      // Waits for the topic to be fully announced on the DHT
+      discovery.flushed(),
+      // Waits for the swarm to connect to pending peers
+      this.hyperswarm.flush()
     ]).catch((err) => { log(`Connection closed before flush ${err}`) })
     log('Finished connecting to pending peers')
   }
