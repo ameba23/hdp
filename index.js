@@ -1,12 +1,12 @@
-const Hyperswarm = require('hyperswarm')
 const EventEmitter = require('events')
+const level = require('level')
+const { join } = require('path')
 const Self = require('./lib/self')
 const log = require('debug')('hdp')
 const Hdpfs = require('./lib/fs')
-const { nameToTopic, randomBytes } = require('./lib/crypto')
 const Peer = require('./lib/peer')
 const Rpc = require('./lib/rpc')
-const handshake = require('./lib/handshake')
+const Swarms = require('./lib/swarms')
 
 module.exports = function (options) {
   return new Hdp(options)
@@ -15,89 +15,56 @@ module.exports = function (options) {
 class Hdp extends EventEmitter {
   constructor (options = {}) {
     super()
-    const self = this
-
-    this.hyperswarm = new Hyperswarm({ seed: options.seed })
     this.peers = {}
-    this.fs = new Hdpfs(options.storage, this.emit)
-    this.publicKey = this.hyperswarm.keyPair.publicKey.toString('hex')
+    this.db = level(join(options.storage, 'db'))
+    this.fs = new Hdpfs(options.storage, this.db, this.emit)
 
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares:', this.shares)
 
-    this.options = options
     this.rpc = new Rpc(this.shares, this.emit)
-    this.swarms = {}
+    const self = this
 
-    // Create a representation of ourself in our peers list
-    this.peers[this.publicKey] = new Self(this.publicKey, this.rpc)
-    this.peers[this.publicKey].getName().then((name) => {
-      self.fs.peerNames[name] = self.peers[this.publicKey]
-    })
-
-    process.once('SIGINT', () => { self.stop() })
-
-    this.hyperswarm.on('connection', async (conn, info) => {
-      const remotePk = conn.remotePublicKey.toString('hex')
-
-      let handshakeErr
-      await handshake(info.topics, conn, Object.keys(this.swarms))
-        .catch((err) => {
-          log(err)
-          log('Dropping connection')
-          handshakeErr = true
-        })
-      if (handshakeErr) return
+    this.swarms = new Swarms(options.seed, this.db, async (connection) => {
+      const remotePk = connection.remotePublicKey.toString('hex')
 
       if (self.peers[remotePk]) {
         log('Duplicate connection')
-        self.peers[remotePk].setConnection(conn)
+        self.peers[remotePk].setConnection(connection)
+      } else {
+        self.peers[remotePk] = new Peer(connection, self.rpc)
       }
-
-      self.peers[remotePk] = self.peers[remotePk] || new Peer(conn, self.rpc)
 
       const name = await self.peers[remotePk].getName()
       log(`Peer ${name} connected.`)
       await self.fs.addPeer(self.peers[remotePk])
       self.emit('connection')
 
-      conn.on('close', async () => {
+      connection.on('close', () => {
         log(`Peer ${name} disconnected`)
       })
     })
-  }
 
-  async join (name) {
-    if (!name) name = randomBytes(32).toString('hex')
-    log(`Joining ${name}`)
-    this.swarms[name] = true
-    const discovery = this.hyperswarm.join(nameToTopic(name), { server: true, client: true })
-    await Promise.all([
-      // Waits for the topic to be fully announced on the DHT
-      discovery.flushed(),
-      // Waits for the swarm to connect to pending peers
-      this.hyperswarm.flush()
-    ]).catch((err) => { log(`Connection closed before flush ${err}`) })
-    log('Finished connecting to pending peers')
-  }
+    // Create a representation of ourself in our peers list
+    this.publicKey = this.swarms.publicKey
+    this.peers[this.publicKey] = new Self(this.publicKey, this.rpc)
+    this.peers[this.publicKey].getName().then((name) => {
+      self.fs.peerNames[name] = self.peers[this.publicKey]
+    })
 
-  async leave (name) {
-    log(`Leaving ${name}`)
-    await this.hyperswarm.leave(nameToTopic(name))
-    this.swarms[name] = false
-    log(`Left ${name}`)
+    this.options = options
+    process.once('SIGINT', () => { self.stop() })
   }
 
   async stop (dontExit) {
     log('Closing down...')
     await Promise.all([
       this.rpc.closeAll(), // Close all open fds
-      this.hyperswarm.destroy()
+      this.swarms.stop()
     ]).catch((err) => {
       console.log(err)
     })
-    this.swarms = {}
     if (!dontExit) process.exit()
   }
 }

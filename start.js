@@ -81,7 +81,7 @@ exports.handler = function (argv) {
     wsServer(hdp, httpServer)
     if (opts.join) {
       console.log(`Joining ${opts.join}`)
-      hdp.join(opts.join)
+      hdp.swarms.join(opts.join)
     }
   })
 }

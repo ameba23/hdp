@@ -20,12 +20,13 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "debug": "^4.3.2",
+    "harddrive-party-ui": "git+https://gitlab.com/pegpeg/harddrive-party-ui.git",
     "hyperswarm": "^3.0.0",
     "level": "^7.0.1",
-    "harddrive-party-ui": "git+https://gitlab.com/pegpeg/harddrive-party-ui.git",
     "mkdirp": "^1.0.4",
     "protocol-buffers-encodings": "^1.1.1",
     "sodium-native": "^3.3.0",
+    "subleveldown": "^6.0.1",
     "toml": "^3.0.0",
     "ws": "^8.5.0",
     "yargs": "^17.3.1"
