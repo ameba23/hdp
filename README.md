@@ -12,7 +12,7 @@ Design goals:
 
 ## Usage
 
-Requires node 14.
+Requires node >= 14. Tested with 14.17.5
 
 All options can be given either as command line options or in a TOML configuration file at `~/.hdp/config.toml`
 
