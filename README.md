@@ -33,15 +33,33 @@ shares = [
 join = "someplace"
 ```
 
-## TODO
-- [x] Capability verification 
+## Roadmap
+
 - [x] LRU Cache
+- [ ] Timeout
+
+### Search
+- [ ] Search peers concurrently
+- [x] Stream large search results
+- [ ] Cache index of own files ?
+- [ ] Report directory sizes
+
+### Shares
+- [ ] report homedir to UI 
+- [ ] Allow dynamic changing of share dirs
+- [ ] Automatically share download dir
+
+### Transfers
 - [x] Local download
 - [ ] Default download directory option
 - [ ] Remote queueing
 - [x] Local queueing
-- [ ] Graceful restart download on reconnect / restart
+- [x] Graceful restart download on reconnect / restart
 - [x] Recursive directory download
-- [ ] Timeout
-- [ ] Search peers concurrently
-- [x] Stream large search results
+- [ ] Report uploads to UI
+
+### Swarming
+- [x] Capability verification 
+- [ ] Avoid joining swarms already joined?
+- [ ] Correctly report joined swarms on startup
+- [ ] Serve files available locally over http
