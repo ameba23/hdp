@@ -12,8 +12,8 @@ message HdpMessage {
 
 message Request {
   message Handshake {
-    // TODO version number
     required bytes token = 1;
+    optional string version = 2;
   }
 
   message Readdir {
@@ -51,8 +51,8 @@ message Request {
 
 message Response {
   message Handshake {
-    // TODO version number
     required bytes token = 1;
+    optional string version = 2;
   }
 
   message Readdir {

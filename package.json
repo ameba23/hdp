@@ -1,6 +1,7 @@
 {
   "name": "hdp",
   "version": "0.1.0",
+  "hdpProtocolVersion": "0.0.1",
   "description": "harddrive-party - peer to peer filesharing",
   "main": "index.js",
   "scripts": {
