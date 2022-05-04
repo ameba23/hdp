@@ -23,6 +23,8 @@
     "debug": "^4.3.2",
     "harddrive-party-ui": "git+https://gitlab.com/pegpeg/harddrive-party-ui.git",
     "hyperswarm": "^3.0.0",
+    "koa": "^2.13.4",
+    "koa-sendfile": "^3.0.0",
     "level": "^7.0.1",
     "mkdirp": "^1.0.4",
     "protocol-buffers-encodings": "^1.1.1",

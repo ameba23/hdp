@@ -7,7 +7,7 @@ const mkdirp = require('mkdirp')
 const { join } = require('path')
 const { red } = require('chalk')
 const homeDir = require('os').homedir()
-const serveUi = require('./lib/serve-ui')
+const HttpServer = require('./lib/http-server')
 
 // Start command for cli to read configuration and start the server
 
@@ -76,7 +76,7 @@ exports.handler = function (argv) {
 
   const hdp = Hdp(opts)
 
-  serveUi(opts.storage, { host: opts.host, port: opts.port }).then((httpServer) => {
+  HttpServer(hdp, { host: opts.host, port: opts.port }).then((httpServer) => {
     console.log('Starting WS server')
     wsServer(hdp, httpServer)
     if (opts.join) {
