@@ -18,8 +18,11 @@ describe('basic', (context) => {
     const db = level(storageDir.name)
     const rpc = new Rpc(db)
     await rpc.addShare(resolvePath('./alice-files'))
-    for await (const [k, v] of rpc.db.iterator()) {
-      console.log(k, v)
+    // for await (const [k, v] of rpc.db.iterator()) {
+    //   console.log(k, v)
+    // }
+    for await (const results of rpc.find({})) {
+      console.log(results)
     }
   })
 })
