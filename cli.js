@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const WsClient = require('./lib/ws-interface/ws-client')
 const { blue, green, red, yellow } = require('chalk')
-const { readableBytes, isDir } = require('./lib/util')
+const { readableBytes } = require('./lib/util')
 const yargs = require('yargs/yargs')
 
 const DEFAULT_PORT = 2323
