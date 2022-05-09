@@ -8,7 +8,7 @@ const Peer = require('./lib/peer')
 const Rpc = require('./lib/rpc')
 const Swarms = require('./lib/swarms')
 
-module.exports = async function (options) {
+module.exports = function (options) {
   return new Hdp(options)
 }
 
@@ -23,8 +23,8 @@ class Hdp extends EventEmitter {
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares:', this.shares)
 
-    this.rpc = new Rpc(this.db, this.shares, this.emit)
     const self = this
+    this.rpc = new Rpc(this.db, this.shares, (e) => { self.emit(e) })
 
     this.swarms = new Swarms(options.seed, this.db, this.emit, async (connection) => {
       const remotePk = connection.remotePublicKey.toString('hex')
