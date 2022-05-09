@@ -23,7 +23,7 @@ class Hdp extends EventEmitter {
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares:', this.shares)
 
-    this.rpc = new Rpc(this.shares, this.emit)
+    this.rpc = new Rpc(this.db, this.emit)
     const self = this
 
     this.swarms = new Swarms(options.seed, this.db, this.emit, async (connection) => {

@@ -24,10 +24,10 @@ describe('basic', (context) => {
     for await (const results of rpc.find({})) {
       console.log(results)
     }
-    for await (const results of rpc.find({ basepath: 'alice-files/subdir' })) {
+    for await (const results of rpc.find({ path: 'alice-files/subdir' })) {
       console.log(results)
     }
-    for await (const results of rpc.find({ basepath: 'alice-files/subdir', recursive: true })) {
+    for await (const results of rpc.find({ path: 'alice-files/subdir', recursive: true })) {
       console.log(results)
     }
   })

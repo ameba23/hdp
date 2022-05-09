@@ -16,8 +16,10 @@ message Request {
     optional string version = 2;
   }
 
-  message Readdir {
-    required string path = 1;
+  message Ls {
+    optional string basepath = 1;
+    optional string searchterm = 2;
+    optional bool recursive = 3;
   }
 
   message Open {
@@ -34,18 +36,12 @@ message Request {
     required uint32 fd = 1;
   }
 
-  message Find {
-    optional string basepath = 1;
-    optional string searchterm = 2;
-  }
-
   oneof msg {
     Handshake handshake = 1;
-    Readdir readdir = 2;
+    Ls ls = 2;
     Open open = 3;
     Read read = 4;
     Close close = 5;
-    Find find = 6;
   }
 }
 
@@ -55,14 +51,14 @@ message Response {
     optional string version = 2;
   }
 
-  message Readdir {
-    message Stat {
+  message Ls {
+    message Entry {
       required string name = 1;
       required uint64 size = 2;
-      optional uint32 mode = 3;
+      required bool isDir = 3;
     }
 
-    repeated Stat files = 1;
+    repeated Entry entries = 1;
   }
 
   message Open {
@@ -76,18 +72,13 @@ message Response {
   message Close {
   }
 
-  message Find {
-    repeated string results = 1;
-  }
-
   message Success {
     oneof msg {
       Handshake handshake = 1;
-      Readdir readdir = 2;
+      Ls ls = 2;
       Open open = 3;
       Read read = 4;
       Close close = 5;
-      Find find = 6;
     }
     optional bool partial = 7;
   }
