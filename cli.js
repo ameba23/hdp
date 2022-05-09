@@ -16,12 +16,12 @@ const argv = yargs(process.argv.slice(2))
     },
     handler: (argv) => {
       wsRequest({
-        readdir: { path: argv.path }
-      }, (readdir) => {
-        readdir.files.forEach(f => {
+        ls: { path: argv.path }
+      }, (ls) => {
+        ls.entries.forEach(e => {
           console.log(
-            isDir(f.mode) ? blue(`[${f.name}]`) : yellow(f.name),
-            red(readableBytes(f.size))
+            e.isDir ? blue(`[${e.name}]`) : yellow(e.name),
+            red(readableBytes(e.size))
           )
         })
       }).catch(handleError)
@@ -48,10 +48,10 @@ const argv = yargs(process.argv.slice(2))
     },
     handler: (argv) => {
       wsRequest(
-        { find: { basepath: argv.basepath, searchterm: argv.searchterm } },
+        { ls: { path: argv.basepath, searchterm: argv.searchterm, recursive: true } },
         (output) => {
-          output.results.forEach(f => {
-            console.log(green(f))
+          output.entries.forEach(e => {
+            console.log(green(e))
           })
         }).catch(handleError)
     }

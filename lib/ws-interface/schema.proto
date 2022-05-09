@@ -5,8 +5,10 @@ syntax = "proto2";
 message ClientMessage {
   required uint32 id = 1;
 
-  message Readdir {
-    required string path = 1;
+  message Ls {
+    optional string basepath = 1;
+    optional string searchterm = 2;
+    optional bool recursive = 3;
   }
 
   message Cat {
@@ -15,10 +17,6 @@ message ClientMessage {
     optional uint64 end = 3;
   }
 
-  message Find {
-    optional string basepath = 1;
-    optional string searchterm = 2;
-  }
 
   message Download {
     required string path = 1;
@@ -33,31 +31,26 @@ message ClientMessage {
   message Wishlist {}
 
   oneof msg {
-    Readdir readdir = 2;
+    Ls ls = 2;
     Cat cat = 3;
-    Find find = 4;
-    Download download = 5;
-    Wishlist wishlist = 6;
-    Swarm swarm = 7;
+    Download download = 4;
+    Wishlist wishlist = 5;
+    Swarm swarm = 6;
   }
 }
 
 message ServerMessage {
   required uint32 id = 1;
 
-  message Readdir {
-    message Stat {
+  message Ls {
+    message Entry {
       required string name = 1;
       required uint64 size = 2;
-      optional uint32 mode = 3;
+      optional bool isDir = 3;
     }
 
-    repeated Stat files = 1;
-    optional string path = 2;
-  }
-
-  message Find {
-    repeated string results = 1;
+    repeated Entry entries = 1;
+    // optional string path = 2;
   }
 
   message Download {
@@ -103,13 +96,12 @@ message ServerMessage {
   message Success {
     oneof msg {
       EndResponse endResponse = 1;
-      Readdir readdir = 2;
+      Ls ls = 2;
       Cat cat = 3;
-      Find find = 4;
-      Download download = 5;
-      Upload upload = 6;
-      Wishlist wishlist = 7;
-      Swarm swarm = 8;
+      Download download = 4;
+      Upload upload = 5;
+      Wishlist wishlist = 6;
+      Swarm swarm = 7;
     }
   }
 
