@@ -75,14 +75,15 @@ exports.handler = function (argv) {
   if (opts.debug) process.env.DEBUG = 'hdp*'
 
   const hdp = Hdp(opts)
-
-  HttpServer(hdp, { host: opts.host, port: opts.port }).then((httpServer) => {
-    console.log('Starting WS server')
-    wsServer(hdp, httpServer)
-    if (opts.join) {
-      console.log(`Joining ${opts.join}`)
-      hdp.swarms.join(opts.join)
-    }
+  hdp.once('ready', () => {
+    HttpServer(hdp, { host: opts.host, port: opts.port }).then((httpServer) => {
+      console.log('Starting WS server')
+      wsServer(hdp, httpServer)
+      if (opts.join) {
+        console.log(`Joining ${opts.join}`)
+        hdp.swarms.join(opts.join)
+      }
+    })
   })
 }
 
