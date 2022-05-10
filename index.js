@@ -51,6 +51,7 @@ class Hdp extends EventEmitter {
     this.peers[this.publicKey] = new Self(this.publicKey, this.rpc)
     this.peers[this.publicKey].getName().then((name) => {
       self.fs.peerNames[name] = self.peers[this.publicKey]
+      self.name = name
     })
 
     this.options = options

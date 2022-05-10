@@ -6,7 +6,7 @@ message ClientMessage {
   required uint32 id = 1;
 
   message Ls {
-    optional string basepath = 1;
+    optional string path = 1;
     optional string searchterm = 2;
     optional bool recursive = 3;
     optional bool omitSelf = 4;
@@ -80,12 +80,11 @@ message ServerMessage {
     repeated string item = 1;
   }
 
-  // TODO not yet used
   message PeerConnected {
     required string name = 1;
+    optional bool self = 2;
   }
 
-  // TODO not yet used
   message PeerDisconnected {
     required string name = 1;
   }
@@ -104,6 +103,8 @@ message ServerMessage {
       Upload upload = 5;
       Wishlist wishlist = 6;
       Swarm swarm = 7;
+      PeerConnected peerConnected = 8;
+      PeerDisconnected peerDisconnected = 9;
     }
   }
 
