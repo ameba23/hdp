@@ -17,7 +17,7 @@ message Request {
   }
 
   message Ls {
-    optional string basepath = 1;
+    optional string path = 1;
     optional string searchterm = 2;
     optional bool recursive = 3;
   }
