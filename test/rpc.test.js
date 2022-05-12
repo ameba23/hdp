@@ -21,13 +21,13 @@ describe('basic', (context) => {
     // for await (const [k, v] of rpc.db.iterator()) {
     //   console.log(k, v)
     // }
-    for await (const results of rpc.find({})) {
+    for await (const results of rpc.ls({})) {
       console.log(results)
     }
-    for await (const results of rpc.find({ path: 'alice-files/subdir' })) {
+    for await (const results of rpc.ls({ path: 'alice-files/subdir' })) {
       console.log(results)
     }
-    for await (const results of rpc.find({ path: 'alice-files/subdir', recursive: true })) {
+    for await (const results of rpc.ls({ path: 'alice-', recursive: true })) {
       console.log(results)
     }
   })

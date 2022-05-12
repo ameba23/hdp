@@ -15,11 +15,20 @@ describe('basic', (context) => {
   })
 
   context('basic', async (assert) => {
-    const alice = Hdp({ storage: aliceStorageDir.name })
-    const bob = Hdp({ storage: bobStorageDir.name })
+    const alice = Hdp({
+      storage: aliceStorageDir.name,
+      shares: [resolvePath('./alice-files')]
+    })
+    const bob = Hdp({
+      storage: bobStorageDir.name,
+      shares: [resolvePath('./bob-files')]
+    })
 
-    await alice.rpc.addShare(resolvePath('./alice-files'))
-    await bob.rpc.addShare(resolvePath('./bob-files'))
+    await Promise.all([(resolve, reject) => {
+      alice.once('ready', resolve)
+    }, (resolve, reject) => {
+      bob.once('ready', resolve)
+    }])
 
     const swarmName = 'some place'
     alice.swarms.join(swarmName)
@@ -40,7 +49,7 @@ describe('basic', (context) => {
     ])
 
     async function basicTest (hdp1, hdp2) {
-      for await (const result of hdp1.fs.ls('/', '', true)) {
+      for await (const result of hdp1.fs.ls('/', 'dme', true)) {
         console.log('r of ls', result)
       }
       // assert.equals(dirList.length, 1, 'One directory')
