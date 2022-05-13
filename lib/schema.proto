@@ -22,26 +22,16 @@ message Request {
     optional bool recursive = 3;
   }
 
-  message Open {
-    required string path = 1;
-  }
-
   message Read {
-    required uint32 fd = 1;
-    required uint32 len = 2;
-    required uint32 pos = 3;
-  }
-
-  message Close {
-    required uint32 fd = 1;
+    required string path = 1;
+    optional uint64 start = 2;
+    optional uint64 end = 3;
   }
 
   oneof msg {
     Handshake handshake = 1;
     Ls ls = 2;
-    Open open = 3;
-    Read read = 4;
-    Close close = 5;
+    Read read = 3;
   }
 }
 
@@ -61,24 +51,15 @@ message Response {
     repeated Entry entries = 1;
   }
 
-  message Open {
-    required uint32 fd = 1;
-  }
-
   message Read {
     required bytes data = 1;
-  }
-
-  message Close {
   }
 
   message Success {
     oneof msg {
       Handshake handshake = 1;
       Ls ls = 2;
-      Open open = 3;
-      Read read = 4;
-      Close close = 5;
+      Read read = 3;
     }
     optional bool partial = 7;
   }

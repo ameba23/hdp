@@ -49,8 +49,11 @@ describe('basic', (context) => {
     ])
 
     async function basicTest (hdp1, hdp2) {
-      for await (const result of hdp1.fs.ls('/', 'dme', true)) {
+      for await (const result of hdp1.fs.ls('', '', true)) {
         console.log('r of ls', result)
+        for await (const data of hdp1.fs.read(result[result.length - 1].name)) {
+          console.log('data', data)
+        }
       }
       // assert.equals(dirList.length, 1, 'One directory')
       //
