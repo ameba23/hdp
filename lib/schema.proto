@@ -55,13 +55,15 @@ message Response {
     required bytes data = 1;
   }
 
+  message EndResponse {}
+
   message Success {
     oneof msg {
       Handshake handshake = 1;
       Ls ls = 2;
       Read read = 3;
+      EndResponse endResponse = 4;
     }
-    optional bool partial = 7;
   }
 
   oneof response {
