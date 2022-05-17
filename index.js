@@ -24,7 +24,7 @@ class Hdp extends EventEmitter {
     log('Shares:', this.shares)
 
     const self = this
-    this.rpc = new Rpc(this.db, this.shares, (e) => { self.emit(e) })
+    this.rpc = new Rpc(this.db, this.shares, (...args) => { self.emit(...args) })
 
     this.swarms = new Swarms(options.seed, this.db, this.emit, async (connection) => {
       const remotePk = connection.remotePublicKey.toString('hex')

@@ -2,13 +2,25 @@
 
 This allows two or more peers to share files. Peers choose one or more directories to share, and a swarm 'topic' name to meet at. 
 
-The [wire protocol](./lib/schema.proto) is largely inspired by [SFTP](https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-02), but only allows read operations. File metadata is cached locally in memory but file content is not.
-
 Peer discovery, [NOISE](https://noiseprotocol.org/) handshaking and stream encryption is done by [hyperswarm](https://github.com/hyperswarm/hyperswarm)
 
+Remote file metadata is cached locally in memory.
+
 Design goals:
-- Minimal setup - do not need to wait to hash files or build an index.
+- Minimal setup - do not need to wait to hash files for the index.
 - Can be used with large media collections
+
+## Protocol
+
+The [wire protocol](./lib/schema.proto) consists of request / response messages of 3 main types:
+
+- A `handshake` message at the beginning of each connection.
+- `ls` messages which query the remote file system for filenames.
+- `read` messages which read a file, or a portion of a file.
+
+All messages have a 32 bit `id` and related messages share the same id.
+
+There is also an `endResponse` signal which indicates that no more related messages with a particular id will be sent.
 
 ## Usage
 
@@ -39,13 +51,14 @@ join = "someplace"
 - [ ] Timeout
 
 ### Search
-- [ ] Search peers concurrently
+- [x] Search peers concurrently
 - [x] Stream large search results
-- [ ] Cache index of own files ?
-- [ ] Report directory sizes
+- [x] Cache index of own files
+- [x] Report directory sizes
 
 ### Shares
 - [ ] report homedir to UI 
+- [ ] report full local path to UI
 - [ ] Allow dynamic changing of share dirs
 - [ ] Automatically share download dir
 
@@ -57,9 +70,12 @@ join = "someplace"
 - [x] Graceful restart download on reconnect / restart
 - [x] Recursive directory download
 - [ ] Report uploads to UI
+- [ ] Persistent representation of downloaded files (fs or db)
 
 ### Swarming
 - [x] Capability verification 
-- [ ] Avoid joining swarms already joined?
-- [ ] Correctly report joined swarms on startup
-- [ ] Serve files available locally over http
+- [x] Avoid joining swarms already joined?
+- [x] Correctly report joined swarms on startup
+
+- [x] Serve downloaded files over http
+- [ ] Serve shared files over http

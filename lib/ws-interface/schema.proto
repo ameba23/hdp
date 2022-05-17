@@ -64,9 +64,8 @@ message ServerMessage {
 
   message Upload {
     required uint64 bytesRead = 1;
-    required uint64 totalBytesRead = 2;
-    optional string filePath = 3;
-    optional string fullFilePath = 4;
+    required string filePath = 2;
+    required string peerName = 3;
   }
 
   message EndResponse {
