@@ -29,6 +29,7 @@
     "mkdirp": "^1.0.4",
     "protocol-buffers-encodings": "^1.1.1",
     "sodium-native": "^3.3.0",
+    "speedometer": "^1.1.0",
     "subleveldown": "^6.0.1",
     "toml": "^3.0.0",
     "ws": "^8.5.0",
