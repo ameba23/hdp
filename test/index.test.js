@@ -35,7 +35,7 @@ describe('basic', (context) => {
     bob.swarms.join(swarmName)
 
     await new Promise((resolve, reject) => {
-      alice.once('connection', resolve)
+      alice.once('peerConnected', resolve)
     })
 
     await basicTest(alice, bob)
