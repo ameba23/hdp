@@ -19,7 +19,6 @@ message ClientMessage {
     optional uint64 end = 3;
   }
 
-
   message Download {
     required string path = 1;
     optional string destination = 3;
@@ -60,12 +59,14 @@ message ServerMessage {
     required uint64 totalBytesRead = 2;
     optional string filePath = 3;
     optional string fullFilePath = 4;
+    optional uint32 kbps = 5;
   }
 
   message Upload {
     required uint64 bytesRead = 1;
     required string filePath = 2;
     required string peerName = 3;
+    optional uint32 kbps = 4;
   }
 
   message EndResponse {

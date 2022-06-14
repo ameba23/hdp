@@ -71,5 +71,3 @@ message Response {
     Success success = 2;
   }
 }
-
-
