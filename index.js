@@ -18,45 +18,47 @@ class Hdp extends EventEmitter {
     this.peers = {}
     this.db = level(join(options.storage, 'db'))
     this.fs = new Hdpfs(options.storage, this.db, this.emit)
+    this.options = options
+
+    const self = this
+    process.once('SIGINT', () => { self.stop() })
 
     this.shares = options.shares
     if (!Array.isArray(this.shares)) this.shares = [this.shares]
     log('Shares:', this.shares)
 
-    const self = this
     this.rpc = new Rpc(this.db, this.shares, (...args) => { self.emit(...args) })
 
-    this.swarms = new Swarms(options.seed, this.db, this.emit, async (connection) => {
-      const remotePk = connection.remotePublicKey.toString('hex')
+    this.on('ready', () => {
+      self.swarms = new Swarms(options.seed, self.db, self.emit, async (connection) => {
+        const remotePk = connection.remotePublicKey.toString('hex')
 
-      if (self.peers[remotePk]) {
-        log('Duplicate connection')
-        self.peers[remotePk].setConnection(connection)
-      } else {
-        self.peers[remotePk] = new Peer(connection, self.rpc)
-      }
+        if (self.peers[remotePk]) {
+          log('Duplicate connection')
+          self.peers[remotePk].setConnection(connection)
+        } else {
+          self.peers[remotePk] = new Peer(connection, self.rpc)
+        }
 
-      const name = await self.peers[remotePk].getName()
-      log(`Peer ${name} connected.`)
-      await self.fs.addPeer(self.peers[remotePk])
-      self.emit('peerConnected', name)
+        const name = await self.peers[remotePk].getName()
+        log(`Peer ${name} connected.`)
+        await self.fs.addPeer(self.peers[remotePk])
+        self.emit('peerConnected', name)
 
-      connection.on('close', () => {
-        log(`Peer ${name} disconnected`)
-        self.emit('peerDisconnected', name)
+        connection.on('close', () => {
+          log(`Peer ${name} disconnected`)
+          self.emit('peerDisconnected', name)
+        })
+      })
+
+      // Create a representation of ourself in our peers list
+      self.publicKey = self.swarms.publicKey
+      self.peers[self.publicKey] = new Self(self.publicKey, self.rpc)
+      self.peers[self.publicKey].getName().then((name) => {
+        self.fs.peerNames[name] = self.peers[self.publicKey]
+        self.name = name
       })
     })
-
-    // Create a representation of ourself in our peers list
-    this.publicKey = this.swarms.publicKey
-    this.peers[this.publicKey] = new Self(this.publicKey, this.rpc)
-    this.peers[this.publicKey].getName().then((name) => {
-      self.fs.peerNames[name] = self.peers[this.publicKey]
-      self.name = name
-    })
-
-    this.options = options
-    process.once('SIGINT', () => { self.stop() })
   }
 
   async stop (dontExit) {
